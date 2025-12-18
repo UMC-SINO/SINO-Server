@@ -22,6 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs)); 
 
 // 공통 응답 헬퍼
 app.use((req, res, next) => {
