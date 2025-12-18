@@ -9,12 +9,13 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  name       String    @unique(map: "uq_user_name") @db.VarChar(15)
-  is_deleted Boolean   @default(false)
-  deleted_at DateTime? @db.DateTime(0)
-  created_at DateTime  @default(now()) @db.DateTime(0)
+  id         Int        @id @default(autoincrement())
+  name       String     @unique(map: "uq_user_name") @db.VarChar(15)
+  is_deleted Boolean    @default(false)
+  deleted_at DateTime?  @db.DateTime(0)
+  created_at DateTime   @default(now()) @db.DateTime(0)
   post       post[]
+  userPhoto  userPhoto?
 
   @@map("user")
 }
@@ -46,8 +47,16 @@ model emotion {
   id                  Int                   @id @default(autoincrement())
   emotion_name        String                @unique(map: "uq_emotion_name") @db.VarChar(20)
   aiAnalyzedEmotion   aiAnalyzedEmotion[]
-  quotationEmotionMap quotationEmotionMap[]
   userSelectedEmotion userSelectedEmotion[]
+}
+
+model oneLine {
+  id      Int    @id @default(autoincrement())
+  post_id Int
+  content String @db.VarChar(50)
+  post    post   @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_oneLine_post")
+
+  @@index([post_id], map: "fk_oneLine_post")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -72,10 +81,12 @@ model post {
   month               Int?
   title               String?               @db.VarChar(100)
   content             String                @db.VarChar(500)
+  heart               Int                   @default(0)
   is_deleted          Boolean               @default(false)
   deleted_at          DateTime?             @db.DateTime(0)
   created_at          DateTime              @default(now()) @db.DateTime(0)
   aiAnalysis          aiAnalysis?
+  oneLine             oneLine[]
   photo               photo[]
   user                User                  @relation(fields: [user_id], references: [id], map: "fk_post_user")
   userSelectedEmotion userSelectedEmotion[]
@@ -84,24 +95,11 @@ model post {
   @@index([year, month], map: "idx_post_year_month")
 }
 
-model quotation {
-  id                  Int                   @id @default(autoincrement())
-  content             String                @db.VarChar(500)
-  author              String?               @db.VarChar(100)
-  created_at          DateTime              @default(now()) @db.DateTime(0)
-  quotationEmotionMap quotationEmotionMap[]
-}
-
-model quotationEmotionMap {
-  id           Int       @id @default(autoincrement())
-  emotion_id   Int
-  quotation_id Int
-  emotion      emotion   @relation(fields: [emotion_id], references: [id], map: "fk_qem_emotion")
-  quotation    quotation @relation(fields: [quotation_id], references: [id], onDelete: Cascade, map: "fk_qem_quotation")
-
-  @@unique([emotion_id, quotation_id], map: "uq_qem_emotion_quotation")
-  @@index([emotion_id], map: "idx_qem_emotion_id")
-  @@index([quotation_id], map: "idx_qem_quotation_id")
+model userPhoto {
+  id      Int    @id @default(autoincrement())
+  user_id Int    @unique(map: "uq_userPhoto_user")
+  url     String @db.VarChar(300)
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_userPhoto_user")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
