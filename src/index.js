@@ -5,6 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
+import { handleGetEmotions } from "./controllers/emotion.controller.js";
 
 dotenv.config();
 
@@ -40,7 +41,12 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
+
+// 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
+
+// 감정 목록 조회 (Issue #7)
+app.get("/api/v1/emotions", handleGetEmotions);
 
 // 서버 실행
 app.listen(port, () => {
