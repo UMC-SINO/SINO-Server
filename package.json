@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "prisma:db-pull": "./node_modules/.bin/prisma db pull",
+    "prisma:studio": "./node_modules/.bin/prisma studio"
   },
   "dependencies": {
     "@prisma/client": "^5.19.1",
