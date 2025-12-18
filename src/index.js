@@ -7,6 +7,7 @@ import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import { handleCreatePresignedUrl } from "./controllers/upload.controller.js";
 import { handleAddPostPhoto } from "./controllers/photo.controller.js";
+import { handleGetEmotions } from "./controllers/emotion.controller.js";
 
 dotenv.config();
 
@@ -50,6 +51,8 @@ app.post("/api/v1/uploads/presign", handleCreatePresignedUrl);
 
 app.post("/api/v1/posts/:postId/photos", handleAddPostPhoto);
 
+// dubu 감정 목록 조회
+app.get("/api/v1/emotions", handleGetEmotions);
 
 // 서버 실행
 app.listen(port, () => {
