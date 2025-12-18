@@ -5,6 +5,8 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
+import { handleCreatePresignedUrl } from "./controllers/upload.controller.js";
+import { handleAddPostPhoto } from "./controllers/photo.controller.js";
 
 dotenv.config();
 
@@ -41,6 +43,12 @@ app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
 app.post("/api/v1/users/signup", handleUserSignUp);
+
+// dubu 이미지 업로드드
+app.post("/api/v1/uploads/presign", handleCreatePresignedUrl);
+
+app.post("/api/v1/posts/:postId/photos", handleAddPostPhoto);
+
 
 // 서버 실행
 app.listen(port, () => {
