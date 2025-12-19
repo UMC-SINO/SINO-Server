@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
+import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -32,6 +34,7 @@ app.use(
     },
   })
 );
+
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
@@ -56,6 +59,8 @@ const isLogin = (req, res, next) => {
     req.userName = req.session.user.name;
     next();
   } else {
+    // dev 브랜치에 UserNotFoundError가 정의/임포트되어있다면 그대로 사용,
+    // 아니라면 아래처럼 일반 Error로 바꿔도 됩니다.
     throw new UserNotFoundError(null, "로그인이 필요합니다.");
   }
 };
@@ -69,16 +74,21 @@ const asyncHandler = (fn) => (req, res, next) => {
 app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
+
+// 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
-app.post(
-  "/api/auth/check-nickname",
-  asyncHandler(authController.checkNickname)
-);
+
+// auth (dev)
+app.post("/api/auth/check-nickname", asyncHandler(authController.checkNickname));
 app.post("/api/auth/login", asyncHandler(authController.login));
 app.post("/api/auth/signup", asyncHandler(authController.signup));
 app.get("/api/auth/test", isLogin, (req, res) => {
   res.success({ message: `${req.userName}님, 세션 인증에 성공했습니다!` });
 });
+
+// 감정 목록 조회 (Issue #7)
+app.get("/api/v1/emotions", handleGetEmotions);
+
 // 전역 에러 처리 미들웨어
 app.use((err, req, res, next) => {
   if (res.headersSent) {
@@ -93,6 +103,7 @@ app.use((err, req, res, next) => {
     data: err.data || null,
   });
 });
+
 // 서버 실행
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
