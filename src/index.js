@@ -42,20 +42,6 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-// 공통 응답 헬퍼 미들웨어
-app.use((req, res, next) => {
-  res.success = (success) =>
-    res.json({ resultType: "SUCCESS", error: null, success });
-  res.error = ({ errorCode = "unknown", reason = null, data = null }) => {
-    return res.json({
-      resultType: "FAIL",
-      error: { errorCode, reason, data },
-      success: null,
-    });
-  };
-  next();
-});
-
 // 테스트 라우트
 app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
