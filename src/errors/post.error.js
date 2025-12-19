@@ -24,8 +24,8 @@ export class PostNotFoundError extends BaseError {
 }
 
 // 500: 토글 처리 실패 (P003)
-export class BookmarkToggleFailedError extends BaseError {
-  constructor(data, message = "북마크 토글 처리에 실패했습니다.") {
+export class InternalServerError extends BaseError {
+  constructor(data, message = "서버 에러가 발생하였습니다.") {
     super(message, 500, "P003", data);
   }
 }
