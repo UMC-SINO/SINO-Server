@@ -6,7 +6,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
-
+import { InferenceClient } from "@huggingface/inference";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import {
   postPhotosUploadMiddleware,
@@ -23,6 +23,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+const client = new InferenceClient(process.env.HF_TOKEN);
 
 // 미들웨어 설정
 app.use(morgan("dev"));
