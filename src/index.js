@@ -15,8 +15,10 @@ import {
 
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
-
-
+import {
+  handlePostDelete,
+  handleBookmarkToggle,
+} from "./controllers/post.controller.js";
 dotenv.config();
 
 const app = express();
@@ -98,7 +100,10 @@ app.post(
 );
 
 // auth (dev)
-app.post("/api/auth/check-nickname", asyncHandler(authController.checkNickname));
+app.post(
+  "/api/auth/check-nickname",
+  asyncHandler(authController.checkNickname)
+);
 app.post("/api/auth/login", asyncHandler(authController.login));
 app.post("/api/auth/signup", asyncHandler(authController.signup));
 app.get("/api/auth/test", isLogin, (req, res) => {
