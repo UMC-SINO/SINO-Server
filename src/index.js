@@ -26,7 +26,12 @@ const port = process.env.PORT || 3000;
 
 // 미들웨어 설정
 app.use(morgan("dev"));
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
