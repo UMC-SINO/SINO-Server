@@ -5,7 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
-import authController from "./controllers/auth.controller.js";
+import { handleBookmarkToggle } from "./controllers/post.controller.js";
 
 dotenv.config();
 
@@ -61,12 +61,8 @@ app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
 app.post("/api/v1/users/signup", handleUserSignUp);
-app.post(
-  "/api/auth/check-nickname",
-  asyncHandler(authController.checkNickname)
-);
-app.post("/api/auth/login", asyncHandler(authController.login));
-app.post("/api/auth/signup", asyncHandler(authController.signup));
+
+app.patch("/api/posts/:postId/bookmark", handleBookmarkToggle);
 
 // 전역 에러 처리 미들웨어
 app.use((err, req, res, next) => {
