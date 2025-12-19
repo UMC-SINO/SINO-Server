@@ -4,6 +4,11 @@ import {
   LoginResponseDto,
   UserDto,
 } from "../dtos/auth.dto.js";
+import {
+  InvalidNicknameError,
+  DuplicateNicknameError,
+  UserNotFoundError,
+} from "../errors/auth.error.js";
 
 // 닉네임 유효성: 3~15자, 공백 불가
 function isValidNickname(name) {
@@ -18,17 +23,13 @@ class AuthService {
   async checkNickname(name) {
     // 유효성 검사 실패
     if (!isValidNickname(name)) {
-      const error = new Error("3~15자의 공백 없는 이름을 입력해주세요.");
-      error.status = 400;
-      throw error;
+      throw new InvalidNicknameError();
     }
 
     // 중복 검사
     const exists = await userRepository.existsByName(name);
     if (exists) {
-      const error = new Error("이미 사용 중인 이름입니다.");
-      error.status = 409;
-      throw error;
+      throw new DuplicateNicknameError();
     }
 
     // 사용 가능
@@ -38,9 +39,7 @@ class AuthService {
   async login(name) {
     const user = await userRepository.findByName(name);
     if (!user) {
-      const error = new Error("일치하는 사용자가 없습니다.");
-      error.status = 401;
-      throw error;
+      throw new UserNotFoundError();
     }
 
     // JWT 생략, 간단 토큰 문자열만 생성
@@ -55,13 +54,13 @@ class AuthService {
       // 사용자 생성
       const newUser = await userRepository.create(name);
       return new UserDto(newUser);
-    } catch (dbError) {
-      if (dbError.code === "P2002") {
-        const error = new Error("회원가입 처리 중 이름이 중복되었습니다.");
-        error.status = 409;
-        throw error;
+    } catch (error) {
+      if (error.code === "P2002") {
+        throw new DuplicateNicknameError(
+          "회원가입 처리 중 이름이 중복되었습니다."
+        );
       }
-      throw dbError;
+      throw error;
     }
   }
 }

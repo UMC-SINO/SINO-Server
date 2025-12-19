@@ -34,9 +34,25 @@ class AuthController {
    *       200:
    *         description: 사용 가능한 닉네임
    *       400:
-   *         description: 유효하지 않은 형식 (길이, 공백 등)
+   *         description: 유효하지 않은 형식 (U001)
+   *         content:
+   *           application/json:
+   *             example:
+   *               resultType: "FAIL"
+   *               error:
+   *                 errorCode: "U001"
+   *                 reason: "3~15자의 공백 없는 이름을 입력해주세요."
+   *                 data: null
    *       409:
-   *         description: 이미 존재하는 닉네임
+   *         description: 이미 존재하는 닉네임 (U002)
+   *         content:
+   *           application/json:
+   *             example:
+   *               resultType: "FAIL"
+   *               error:
+   *                 errorCode: "U002"
+   *                 reason: "이미 사용 중인 이름입니다."
+   *                 data: null
    */
   checkNickname = async (req, res) => {
     try {
@@ -69,7 +85,15 @@ class AuthController {
    *       200:
    *         description: 로그인 성공
    *       401:
-   *         description: 등록되지 않은 사용자
+   *         description: 등록되지 않은 사용자 (U003)
+   *         content:
+   *           application/json:
+   *             example:
+   *               resultType: "FAIL"
+   *               error:
+   *                 errorCode: "U003"
+   *                 reason: "일치하는 사용자가 없습니다."
+   *                 data: null
    */
   login = async (req, res) => {
     try {
@@ -102,9 +126,26 @@ class AuthController {
    *       201:
    *         description: 회원가입 성공
    *       400:
-   *         description: 유효하지 않은 형식
+   *         description: 유효하지 않은 형식 (U001)
+   *         content:
+   *           application/json:
+   *             example:
+   *               resultType: "FAIL"
+   *               error:
+   *                 errorCode: "U001"
+   *                 reason: "3~15자의 공백 없는 이름을 입력해주세요."
+   *                 data: null
    *       409:
-   *         description: 이미 존재하는 이름
+   *         description: 이미 존재하는 이름 (U002)
+   *         content:
+   *           application/json:
+   *             example:
+   *               resultType: "FAIL"
+   *               error:
+   *                 errorCode: "U002"
+   *                 reason: "이미 사용 중인 이름입니다."
+   *                 data:
+   *                   requestedName: "newuser123"
    */
   signup = async (req, res) => {
     try {
