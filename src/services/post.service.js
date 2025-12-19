@@ -3,7 +3,7 @@ import { findById, updateBookmark, deletePostById } from "../repositories/post.r
 import {
   InvalidPostIdError,
   PostNotFoundError,
-  BookmarkToggleFailedError,
+  InternalServerError,
   PostAlreadyDeletedError
 } from "../errors/post.error.js";
 
@@ -35,7 +35,7 @@ export const bookmarkToggle = async (postId) => {
     }
 
     // 기타 DB 장애/권한/연결 문제 등
-    throw new BookmarkToggleFailedError(
+    throw new InternalServerError(
       { postId: postIdNum, detail: error?.message },
       "북마크 토글 처리 중 오류가 발생했습니다."
     );
@@ -67,7 +67,7 @@ export const deletePost = async (postId) => {
     }
 
     // 기타 DB 장애/권한/연결 문제 등
-    throw new BookmarkToggleFailedError(
+    throw new InternalServerError(
       { postId: postIdNum, detail: error?.message },
       "북마크 토글 처리 중 오류가 발생했습니다."
     );

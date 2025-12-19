@@ -1,4 +1,3 @@
-// post.controller.js
 import { bookmarkToggle, deletePost } from "../services/post.service.js";
 
 /**
@@ -68,14 +67,14 @@ import { bookmarkToggle, deletePost } from "../services/post.service.js";
  *                   postId: 999
  *               success: null
  *       500:
- *         description: 북마크 토글 처리 실패 (P003)
+ *         description: 서버 에러 (P003)
  *         content:
  *           application/json:
  *             example:
  *               resultType: "FAIL"
  *               error:
  *                 errorCode: "P003"
- *                 reason: "북마크 토글 처리 중 오류가 발생했습니다."
+ *                 reason: "서버 에러가 발생하였습니다."
  *                 data: null
  *               success: null
  */
@@ -127,17 +126,30 @@ export const handleBookmarkToggle = async (req, res, next) => {
  *                   deleted_at: "2025-12-19T00:00:00.000Z"
  *                   created_at: "2025-12-19T00:00:00.000Z"
  *       400:
- *         description: 유효하지 않은 게시글 ID (P001)
+ *         description: 유효하지 않은 게시글 ID 또는 이미 삭제된 게시글 (P001, P004)
  *         content:
  *           application/json:
- *             example:
- *               resultType: "FAIL"
- *               error:
- *                 errorCode: "P001"
- *                 reason: "유효하지 않은 게시글 ID 입니다."
- *                 data:
- *                   postId: "abc"
- *               success: null
+ *             examples:
+ *               invalidPostId:
+ *                 summary: 유효하지 않은 postId (P001)
+ *                 value:
+ *                   resultType: "FAIL"
+ *                   error:
+ *                     errorCode: "P001"
+ *                     reason: "유효하지 않은 게시글 ID 입니다."
+ *                     data:
+ *                       postId: "abc"
+ *                   success: null
+ *               alreadyDeleted:
+ *                 summary: 이미 삭제된 게시글 (P004)
+ *                 value:
+ *                   resultType: "FAIL"
+ *                   error:
+ *                     errorCode: "P004"
+ *                     reason: "이미 삭제된 게시글입니다."
+ *                     data:
+ *                       postId: 1
+ *                   success: null
  *       404:
  *         description: 게시글을 찾을 수 없음 (P002)
  *         content:
@@ -150,27 +162,15 @@ export const handleBookmarkToggle = async (req, res, next) => {
  *                 data:
  *                   postId: 999
  *               success: null
- *       409:
- *         description: 이미 삭제된 게시글 (P004)
- *         content:
- *           application/json:
- *             example:
- *               resultType: "FAIL"
- *               error:
- *                 errorCode: "P004"
- *                 reason: "이미 삭제된 게시글입니다."
- *                 data:
- *                   postId: 1
- *               success: null
  *       500:
- *         description: 게시글 삭제 처리 실패 (P005)
+ *         description: 서버 에러 (P003)
  *         content:
  *           application/json:
  *             example:
  *               resultType: "FAIL"
  *               error:
- *                 errorCode: "P005"
- *                 reason: "게시글 삭제 처리 중 오류가 발생했습니다."
+ *                 errorCode: "P003"
+ *                 reason: "서버 에러가 발생하였습니다."
  *                 data: null
  *               success: null
  */
