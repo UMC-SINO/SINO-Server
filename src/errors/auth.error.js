@@ -29,10 +29,3 @@ export class UserNotFoundError extends BaseError {
     super(message, 401, "U003", data);
   }
 }
-
-// 요청하신 예시: 중복된 이메일 (U004)
-export class DuplicateUserEmailError extends BaseError {
-  constructor(data, message = "이미 존재하는 이메일입니다.") {
-    super(message, 409, "U004", data);
-  }
-}

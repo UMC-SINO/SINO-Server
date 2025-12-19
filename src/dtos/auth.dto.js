@@ -16,13 +16,12 @@ class LoginRequestDto {
     this.name = body.name;
   }
 }
-class LoginResponseDto {
-  constructor(accessToken, user) {
-    this.accessToken = accessToken;
-    this.user = user;
+class SessionUserDto {
+  constructor(user) {
+    this.id = user.id;
+    this.name = user.name;
   }
 }
-
 // Signup
 class SignupRequestDto {
   constructor(body) {
@@ -42,7 +41,7 @@ export {
   CheckNicknameRequestDto,
   CheckNicknameResponseDto,
   LoginRequestDto,
-  LoginResponseDto,
   SignupRequestDto,
+  SessionUserDto,
   UserDto,
 };

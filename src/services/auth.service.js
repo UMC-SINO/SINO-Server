@@ -1,9 +1,5 @@
 import userRepository from "../repositories/auth.repository.js";
-import {
-  CheckNicknameResponseDto,
-  LoginResponseDto,
-  UserDto,
-} from "../dtos/auth.dto.js";
+import { CheckNicknameResponseDto, UserDto } from "../dtos/auth.dto.js";
 import {
   InvalidNicknameError,
   DuplicateNicknameError,
@@ -41,10 +37,7 @@ class AuthService {
     if (!user) {
       throw new UserNotFoundError();
     }
-
-    // JWT 생략, 간단 토큰 문자열만 생성
-    const fakeToken = `token_${user.id}_${Date.now()}`;
-    return new LoginResponseDto(fakeToken, new UserDto(user));
+    return new UserDto(user);
   }
   async signup(name) {
     try {

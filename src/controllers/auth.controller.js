@@ -4,6 +4,7 @@ import {
   CheckNicknameRequestDto,
   LoginRequestDto,
   SignupRequestDto,
+  SessionUserDto,
 } from "../dtos/auth.dto.js";
 
 /**
@@ -55,8 +56,8 @@ class AuthController {
    *                 data: null
    */
   checkNickname = async (req, res) => {
-    const dto = new CheckNicknameRequestDto(req.body);
-    const result = await authService.checkNickname(dto.name);
+    const checkNicknameRequest = new CheckNicknameRequestDto(req.body);
+    const result = await authService.checkNickname(checkNicknameRequest.name);
     return res.success(result);
   };
 
@@ -64,7 +65,7 @@ class AuthController {
    * @swagger
    * /api/auth/login:
    *   post:
-   *     summary: 이름으로 로그인
+   *     summary: 이름으로 로그인 (세션 기반)
    *     tags:
    *       - Auth
    *     requestBody:
@@ -92,9 +93,12 @@ class AuthController {
    *                 data: null
    */
   login = async (req, res) => {
-    const dto = new LoginRequestDto(req.body);
-    const result = await authService.login(dto.name);
-    return res.success(result);
+    const loginRequest = new LoginRequestDto(req.body);
+    const userDto = await authService.login(loginRequest.name);
+
+    req.session.user = new SessionUserDto(userDto);
+
+    return res.success(userDto);
   };
 
   /**
@@ -140,8 +144,8 @@ class AuthController {
    *                   requestedName: "newuser123"
    */
   signup = async (req, res) => {
-    const dto = new SignupRequestDto(req.body);
-    const userDto = await authService.signup(dto.name);
+    const signupRequest = new SignupRequestDto(req.body);
+    const userDto = await authService.signup(signupRequest.name);
     return res.status(201).success(userDto);
   };
 }

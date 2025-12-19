@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
+import session from "express-session";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import authController from "./controllers/auth.controller.js";
@@ -18,7 +19,19 @@ app.use(cors());
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1800000,
+      sameSite: "lax",
+      secure: false,
+    },
+  })
+);
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
@@ -37,6 +50,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// 로그인 확인 미들웨어
+const isLogin = (req, res, next) => {
+  if (req.session && req.session.user) {
+    req.userName = req.session.user.name;
+    next();
+  } else {
+    throw new UserNotFoundError(null, "로그인이 필요합니다.");
+  }
+};
+
 // 비동기 에러 래퍼
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
@@ -53,7 +76,9 @@ app.post(
 );
 app.post("/api/auth/login", asyncHandler(authController.login));
 app.post("/api/auth/signup", asyncHandler(authController.signup));
-
+app.get("/api/auth/test", isLogin, (req, res) => {
+  res.success({ message: `${req.userName}님, 세션 인증에 성공했습니다!` });
+});
 // 전역 에러 처리 미들웨어
 app.use((err, req, res, next) => {
   if (res.headersSent) {
