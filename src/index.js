@@ -1,3 +1,4 @@
+// src/index.js
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
@@ -5,10 +6,16 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
+
 import { handleUserSignUp } from "./controllers/user.controller.js";
-import { handleBookmarkToggle, handlePostDelete } from "./controllers/post.controller.js";
+import {
+  postPhotosUploadMiddleware,
+  handleUploadPostPhotos,
+} from "./controllers/photo.controller.js";
+
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
+
 
 dotenv.config();
 
@@ -38,6 +45,7 @@ app.use(
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // 공통 응답 헬퍼 (한 번만!)
 app.use((req, res, next) => {
@@ -83,6 +91,12 @@ app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
 
+app.post(
+  "/api/v1/posts/:postId/photos",
+  postPhotosUploadMiddleware,
+  handleUploadPostPhotos
+);
+
 // auth (dev)
 app.post("/api/auth/check-nickname", asyncHandler(authController.checkNickname));
 app.post("/api/auth/login", asyncHandler(authController.login));
@@ -94,18 +108,13 @@ app.get("/api/auth/test", isLogin, (req, res) => {
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
-// 전역 에러 처리 미들웨어
+// ✅ 전역 에러 처리 미들웨어는 “모든 라우트 등록 끝난 다음” 맨 아래
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
 
   const status = err.status || err.statusCode || 500;
 
-  // 500은 로그 남겨두는 게 디버깅에 유리
-  if (status >= 500) {
-    console.error(err);
-  }
-
-  return res.status(status).error({
+  res.status(status).error({
     errorCode: err.errorCode || "COMMON_001",
     reason: err.reason || err.message || "Internal Server Error",
     data: err.data || null,
