@@ -55,13 +55,9 @@ class AuthController {
    *                 data: null
    */
   checkNickname = async (req, res) => {
-    try {
-      const dto = new CheckNicknameRequestDto(req.body);
-      const result = await authService.checkNickname(dto.name);
-      return res.status(200).json(result);
-    } catch (err) {
-      return res.status(err.status || 500).json({ message: err.message });
-    }
+    const dto = new CheckNicknameRequestDto(req.body);
+    const result = await authService.checkNickname(dto.name);
+    return res.success(result);
   };
 
   /**
@@ -96,13 +92,9 @@ class AuthController {
    *                 data: null
    */
   login = async (req, res) => {
-    try {
-      const dto = new LoginRequestDto(req.body);
-      const result = await authService.login(dto.name);
-      return res.status(200).json(result);
-    } catch (err) {
-      return res.status(err.status || 401).json({ message: err.message });
-    }
+    const dto = new LoginRequestDto(req.body);
+    const result = await authService.login(dto.name);
+    return res.success(result);
   };
 
   /**
@@ -148,14 +140,9 @@ class AuthController {
    *                   requestedName: "newuser123"
    */
   signup = async (req, res) => {
-    try {
-      const dto = new SignupRequestDto(req.body);
-      const userDto = await authService.signup(dto.name);
-      return res.status(201).json(userDto);
-    } catch (err) {
-      const status = err.status || 500;
-      return res.status(status).json({ message: err.message });
-    }
+    const dto = new SignupRequestDto(req.body);
+    const userDto = await authService.signup(dto.name);
+    return res.status(201).success(userDto);
   };
 }
 
