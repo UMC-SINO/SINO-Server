@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
+import session from "express-session";
 import { specs } from "../swagger.config.js";
 
 import { handleUserSignUp } from "./controllers/user.controller.js";
@@ -11,6 +12,10 @@ import {
   postPhotosUploadMiddleware,
   handleUploadPostPhotos,
 } from "./controllers/photo.controller.js";
+
+import { handleGetEmotions } from "./controllers/emotion.controller.js";
+import authController from "./controllers/auth.controller.js";
+
 
 dotenv.config();
 
@@ -24,11 +29,25 @@ app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1800000,
+      sameSite: "lax",
+      secure: false,
+    },
+  })
+);
+
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-// 공통 응답 헬퍼
+// 공통 응답 헬퍼 (한 번만!)
 app.use((req, res, next) => {
   res.success = (success) => {
     return res.json({ resultType: "SUCCESS", error: null, success });
@@ -43,18 +62,64 @@ app.use((req, res, next) => {
   next();
 });
 
+// 로그인 확인 미들웨어
+const isLogin = (req, res, next) => {
+  if (req.session && req.session.user) {
+    req.userName = req.session.user.name;
+    next();
+  } else {
+    // dev 브랜치에 UserNotFoundError가 정의/임포트되어있다면 그대로 사용,
+    // 아니라면 아래처럼 일반 Error로 바꿔도 됩니다.
+    throw new UserNotFoundError(null, "로그인이 필요합니다.");
+  }
+};
+
+// 비동기 에러 래퍼
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
 // 테스트 라우트
 app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
+
+// 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
+app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
+app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
+app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
+// 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
 
-// Photos (Save 버튼 1번 -> 업로드+DB저장)
 app.post(
   "/api/v1/posts/:postId/photos",
   postPhotosUploadMiddleware,
   handleUploadPostPhotos
 );
+
+// auth (dev)
+app.post("/api/auth/check-nickname", asyncHandler(authController.checkNickname));
+app.post("/api/auth/login", asyncHandler(authController.login));
+app.post("/api/auth/signup", asyncHandler(authController.signup));
+app.get("/api/auth/test", isLogin, (req, res) => {
+  res.success({ message: `${req.userName}님, 세션 인증에 성공했습니다!` });
+});
+
+// 감정 목록 조회 (Issue #7)
+app.get("/api/v1/emotions", handleGetEmotions);
+
+// ✅ 전역 에러 처리 미들웨어는 “모든 라우트 등록 끝난 다음” 맨 아래
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+
+  const status = err.status || err.statusCode || 500;
+
+  res.status(status).error({
+    errorCode: err.errorCode || "COMMON_001",
+    reason: err.reason || err.message || "Internal Server Error",
+    data: err.data || null,
+  });
+});
 
 // 서버 실행
 app.listen(port, () => {
