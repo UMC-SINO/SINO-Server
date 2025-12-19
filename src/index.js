@@ -1,10 +1,16 @@
+// src/index.js
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "../swagger.config.js";
+
 import { handleUserSignUp } from "./controllers/user.controller.js";
+import {
+  postPhotosUploadMiddleware,
+  handleUploadPostPhotos,
+} from "./controllers/photo.controller.js";
 
 dotenv.config();
 
@@ -20,6 +26,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // 공통 응답 헬퍼
 app.use((req, res, next) => {
@@ -41,6 +48,13 @@ app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
 app.post("/api/v1/users/signup", handleUserSignUp);
+
+// Photos (Save 버튼 1번 -> 업로드+DB저장)
+app.post(
+  "/api/v1/posts/:postId/photos",
+  postPhotosUploadMiddleware,
+  handleUploadPostPhotos
+);
 
 // 서버 실행
 app.listen(port, () => {
