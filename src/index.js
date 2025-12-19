@@ -5,6 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
+import authController from "./controllers/auth.controller.js";
 
 dotenv.config();
 
@@ -41,7 +42,9 @@ app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
 app.post("/api/v1/users/signup", handleUserSignUp);
-
+app.post("/api/auth/check-nickname", authController.checkNickname);
+app.post("/api/auth/login", authController.login);
+app.post("/api/auth/signup", authController.signup);
 // 서버 실행
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
