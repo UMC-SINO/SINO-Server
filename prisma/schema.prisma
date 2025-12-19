@@ -2,43 +2,122 @@ generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "windows"]
 }
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique(map: "email") @db.VarChar(255)
-  name          String   @db.VarChar(100)
-  gender        String   @db.VarChar(15)
-  birth         DateTime @db.Date
-  address       String   @db.VarChar(255)
-  detailAddress String?  @map("detail_address") @db.VarChar(255)
-  phoneNumber   String   @map("phone_number") @db.VarChar(15)
-
-  userFavorCategories UserFavorCategory[]
+  id         Int        @id @default(autoincrement())
+  name       String     @unique(map: "uq_user_name") @db.VarChar(15)
+  is_deleted Boolean    @default(false)
+  deleted_at DateTime?  @db.DateTime(0)
+  created_at DateTime   @default(now()) @db.DateTime(0)
+  post       post[]
+  userPhoto  userPhoto?
 
   @@map("user")
 }
 
-model FoodCategory {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(100)
-
-  userFavorCategories UserFavorCategory[]
-
-  @@map("food_category")
+model aiAnalysis {
+  id                  Int                             @id @default(autoincrement())
+  post_id             Int                             @unique(map: "uq_aiAnalysis_post")
+  signal_noise_result aiAnalysis_signal_noise_result?
+  created_at          DateTime                        @default(now()) @db.DateTime(0)
+  post                post                            @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_aiAnalysis_post")
+  aiAnalyzedEmotion   aiAnalyzedEmotion[]
 }
 
-model UserFavorCategory {
-  id             Int          @id @default(autoincrement())
-  user           User         @relation(fields: [userId], references: [id])
-  userId         Int          @map("user_id")
-  foodCategory   FoodCategory @relation(fields: [foodCategoryId], references: [id])
-  foodCategoryId Int          @map("food_category_id")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model aiAnalyzedEmotion {
+  id          Int        @id @default(autoincrement())
+  analysis_id Int
+  emotion_id  Int
+  percentage  Decimal    @db.Decimal(5, 2)
+  aiAnalysis  aiAnalysis @relation(fields: [analysis_id], references: [id], onDelete: Cascade, map: "fk_aie_analysis")
+  emotion     emotion    @relation(fields: [emotion_id], references: [id], map: "fk_aie_emotion")
 
-  @@index([foodCategoryId], map: "f_category_id")
-  @@index([userId], map: "user_id")
-  @@map("user_favor_category")
+  @@unique([analysis_id, emotion_id], map: "uq_aie_analysis_emotion")
+  @@index([analysis_id], map: "idx_aie_analysis_id")
+  @@index([emotion_id], map: "idx_aie_emotion_id")
+}
+
+model emotion {
+  id                  Int                   @id @default(autoincrement())
+  emotion_name        String                @unique(map: "uq_emotion_name") @db.VarChar(20)
+  aiAnalyzedEmotion   aiAnalyzedEmotion[]
+  userSelectedEmotion userSelectedEmotion[]
+}
+
+model oneLine {
+  id      Int    @id @default(autoincrement())
+  post_id Int
+  content String @db.VarChar(50)
+  post    post   @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_oneLine_post")
+
+  @@index([post_id], map: "fk_oneLine_post")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model photo {
+  id           Int      @id @default(autoincrement())
+  post_id      Int
+  url          String   @db.VarChar(300)
+  is_picked    Boolean  @default(false)
+  upload_order Int
+  created_at   DateTime @default(now()) @db.DateTime(0)
+  post         post     @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_photo_post")
+
+  @@index([post_id], map: "idx_photo_post_id")
+  @@index([post_id, upload_order], map: "idx_photo_post_order")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model post {
+  id                  Int                   @id @default(autoincrement())
+  user_id             Int
+  year                Int
+  month               Int?
+  title               String?               @db.VarChar(100)
+  content             String                @db.VarChar(500)
+  heart               Int                   @default(0)
+  is_deleted          Boolean               @default(false)
+  deleted_at          DateTime?             @db.DateTime(0)
+  created_at          DateTime              @default(now()) @db.DateTime(0)
+  aiAnalysis          aiAnalysis?
+  oneLine             oneLine[]
+  photo               photo[]
+  user                User                  @relation(fields: [user_id], references: [id], map: "fk_post_user")
+  userSelectedEmotion userSelectedEmotion[]
+
+  @@index([user_id], map: "idx_post_user_id")
+  @@index([year, month], map: "idx_post_year_month")
+}
+
+model userPhoto {
+  id      Int    @id @default(autoincrement())
+  user_id Int    @unique(map: "uq_userPhoto_user")
+  url     String @db.VarChar(300)
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_userPhoto_user")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model userSelectedEmotion {
+  id         Int     @id @default(autoincrement())
+  post_id    Int
+  emotion_id Int
+  is_saved   Boolean @default(false)
+  percentage Decimal @db.Decimal(5, 2)
+  emotion    emotion @relation(fields: [emotion_id], references: [id], map: "fk_use_emotion")
+  post       post    @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_use_post")
+
+  @@unique([post_id, emotion_id], map: "uq_use_post_emotion")
+  @@index([emotion_id], map: "idx_use_emotion_id")
+  @@index([post_id], map: "idx_use_post_id")
+}
+
+enum aiAnalysis_signal_noise_result {
+  Signal
+  Noise
 }
