@@ -6,6 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
+import { handleBookmarkToggle, handlePostDelete } from "./controllers/post.controller.js";
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
 
@@ -38,7 +39,7 @@ app.use(
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-// 공통 응답 헬퍼
+// 공통 응답 헬퍼 (한 번만!)
 app.use((req, res, next) => {
   res.success = (success) => {
     return res.json({ resultType: "SUCCESS", error: null, success });
@@ -75,6 +76,10 @@ app.get("/", (req, res) => {
   res.send("Hello World! Server is running.");
 });
 
+// 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
+app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
+app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
+app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
 
@@ -91,13 +96,16 @@ app.get("/api/v1/emotions", handleGetEmotions);
 
 // 전역 에러 처리 미들웨어
 app.use((err, req, res, next) => {
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
 
   const status = err.status || err.statusCode || 500;
 
-  res.status(status).error({
+  // 500은 로그 남겨두는 게 디버깅에 유리
+  if (status >= 500) {
+    console.error(err);
+  }
+
+  return res.status(status).error({
     errorCode: err.errorCode || "COMMON_001",
     reason: err.reason || err.message || "Internal Server Error",
     data: err.data || null,
