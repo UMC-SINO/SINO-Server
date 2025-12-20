@@ -33,6 +33,11 @@ import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
 import { hugRepository } from "./repositories/hug.repository.js";
 import { handleGetPost } from "./controllers/image.controller.js";
+import {
+  updatePostUploadMiddleware,
+  handleUpdatePost,
+} from "./controllers/postUpdate.controller.js";
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -61,6 +66,10 @@ app.use(
     },
   })
 );
+
+
+
+
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -152,6 +161,16 @@ app.get("/api/auth/me", isLogin, asyncHandler(getMe));
 
 // create post
 app.post("/api/posts/create", isLogin, createPostUploadMiddleware, asyncHandler(handleCreatePost));
+
+// update post
+app.patch(
+  "/api/posts/:postId",
+  isLogin,
+  updatePostUploadMiddleware,
+  asyncHandler(handleUpdatePost)
+);
+
+
 
 // 
 app.use((err, req, res, next) => {
