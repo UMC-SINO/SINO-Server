@@ -125,16 +125,21 @@ export const hugController = {
    *                     percentage: 85
    *                 analyzedAt: "2025-12-20T21:30:00.000Z"
    *       404:
-   *         description: 분석 결과 없음 (H006) 또는 게시글 없음 (H005)
+   *         description: 리소스를 찾을 수 없음
    *         content:
    *           application/json:
-   *               - example:
+   *             examples:
+   *               AnalysisNotFound:
+   *                 summary: 분석 결과가 없는 경우 (H006)
+   *                 value:
    *                   resultType: "FAIL"
    *                   error:
    *                     errorCode: "H006"
    *                     reason: "해당 게시글의 분석 결과가 존재하지 않습니다."
    *                     data: null
-   *               - example:
+   *               PostNotFound:
+   *                 summary: 게시글 자체가 없는 경우 (H005)
+   *                 value:
    *                   resultType: "FAIL"
    *                   error:
    *                     errorCode: "H005"
