@@ -18,6 +18,8 @@ import authController from "./controllers/auth.controller.js";
 import {
   handlePostDelete,
   handleBookmarkToggle,
+  handleSignalPosts,
+  handleNoisePosts,
 } from "./controllers/post.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
@@ -93,8 +95,13 @@ app.get("/", (req, res) => {
 
 // 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
+// post 관련 라우트
 app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
 app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
+app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
+app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
+app.get("/api/posts/:postId", asyncHandler(handlePost));
+
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
 
