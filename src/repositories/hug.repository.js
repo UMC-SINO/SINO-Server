@@ -10,7 +10,6 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export const hugRepository = {
   async fetchEmotionAnalysis(text) {
     const completion = await groq.chat.completions.create({
-      // Llama 3 모델 사용 (매우 영리함)
       messages: [
         {
           role: "system",
@@ -53,27 +52,12 @@ export const hugRepository = {
 
       const aiEmotionData = aiEmotions.map((e) => ({
         analysis_id: analysis.id,
-        emotion_id: getEmotionId(e.label),
         percentage: e.percentage,
+        emotion_name: e.label,
       }));
 
       await tx.aiAnalyzedEmotion.createMany({ data: aiEmotionData });
       return analysis.id;
     });
   },
-};
-const getEmotionId = (label) => {
-  const map = {
-    Boredom: 1,
-    Worried: 2,
-    Smile: 3,
-    Joyful: 4,
-    Happy: 5,
-    Angry: 6,
-    Shameful: 7,
-    Unrest: 8,
-    Afraid: 9,
-    Sad: 10,
-  };
-  return map[label];
 };

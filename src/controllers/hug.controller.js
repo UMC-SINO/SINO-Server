@@ -16,7 +16,7 @@ export const hugController = {
    * /api/posts/{postId}/analyze:
    *   post:
    *     summary: 게시글 AI 감정 분석 실행
-   *     description: Llama 3 모델을 사용하여 게시글의 감정을 10가지로 정밀 분석합니다.
+   *     description: Llama 3 모델을 사용하여 10가지 감정(Boredom, Happy 등)의 수치를 분석하고 결과를 DB에 저장합니다.
    *     tags:
    *       - Hug
    *     parameters:
@@ -35,9 +35,11 @@ export const hugController = {
    *               success:
    *                 signalNoiseResult: "Signal"
    *                 emotions:
-   *                   - label: "Happy"
-   *                     percentage: 80
-   *                 analyzedAt: "2023-10-27T10:00:00.000Z"
+   *                   - emotion_name: "Happy"
+   *                     percentage: 85
+   *                   - emotion_name: "Joyful"
+   *                     percentage: 10
+   *                 analyzedAt: "2025-12-20T21:30:00.000Z"
    */
   analyzeExistingPost: async (req, res) => {
     const request = new AnalyzePostRequestDto(req.params);
@@ -48,6 +50,7 @@ export const hugController = {
       signalNoiseResult,
       emotions
     );
-    return res.success(response.success);
+
+    return res.success(responseData);
   },
 };
