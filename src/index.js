@@ -113,6 +113,7 @@ app.get("/", (req, res) => {
 // 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
+<<<<<<< HEAD
 app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle)); //
 app.delete("/api/posts/:postId", asyncHandler(handlePostDelete)); //
 app.get("/api/posts/signal",asyncHandler(handleSignalPosts)); //
@@ -122,6 +123,17 @@ app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline)); //
 app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion)); //
 app.post("/api/report/:year/:month", asyncHandler(handleReport)); 
 app.post("/api/report/:year", asyncHandler(handleReport));
+=======
+app.patch("/api/posts/:postId/bookmark", isLogin, asyncHandler(handleBookmarkToggle)); //
+app.delete("/api/posts/:postId", isLogin, asyncHandler(handlePostDelete)); //
+app.post("/api/posts/signal",  asyncHandler(handleSignalPosts)); //
+app.post("/api/posts/noise",  asyncHandler(handleNoisePosts)); //
+app.get("/api/posts/:postId", isLogin, asyncHandler(handlePost)); //
+app.post("/api/posts/:postId/oneline", isLogin, asyncHandler(handlePostOneline)); //
+app.patch("/api/posts/:postId/emotion", isLogin, asyncHandler(handlePostEmotion)); //
+app.post("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
+app.post("/api/report/:year", isLogin, asyncHandler(handleReport));
+>>>>>>> d1a5694 (수정)
 
 // 회원가입
 
