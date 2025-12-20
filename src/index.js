@@ -19,15 +19,16 @@ import { getMe } from "./controllers/me.controller.js";
 import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
 
 
-// import {
-//   handlePostDelete,
-//   handleBookmarkToggle,
-//   handleSignalPosts,
-//   handleNoisePosts,
-//   handlePost,
-//   handlePostOneline,
-//   handlePostEmotion,
-// } from "./controllers/post.controller.js";
+import {
+  handlePostDelete,
+  handleBookmarkToggle,
+  handleSignalPosts,
+  handleNoisePosts,
+  handlePost,
+  handlePostOneline,
+  handlePostEmotion,
+} from "./controllers/post.controller.js";
+import { handleReport } from "./controllers/report.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
 import { hugRepository } from "./repositories/hug.repository.js";
@@ -103,13 +104,15 @@ app.get("/", (req, res) => {
 // 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
-// app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
-// app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
-// app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
-// app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
-// app.get("/api/posts/:postId", asyncHandler(handlePost));
-// app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline));
-// app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion));
+app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle)); //
+app.delete("/api/posts/:postId", asyncHandler(handlePostDelete)); //
+app.get("/api/posts/signal", asyncHandler(handleSignalPosts)); //
+app.get("/api/posts/noise", asyncHandler(handleNoisePosts)); //
+app.get("/api/posts/:postId", asyncHandler(handlePost)); //
+app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline)); //
+app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion)); //
+app.get("/api/report/:year/:month", asyncHandler(handleReport)); 
+app.get("/api/report/:year", asyncHandler(handleReport));
 
 // 회원가입
 
