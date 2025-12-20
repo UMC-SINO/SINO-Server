@@ -7,7 +7,6 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
-import { InferenceClient } from "@huggingface/inference";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import {
   postPhotosUploadMiddleware,
@@ -136,9 +135,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-console.log("현재 토큰:", process.env.HF_TOKEN ? "로드 성공" : "로드 실패!");
 // 서버 실행
-app.listen(port, () => {
-  hugRepository.warmupModel(); // huggingface 모델 웜업
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.PORT || 3000, async () => {
+  console.log(
+    `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
+  );
+  await hugRepository.warmupModel();
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });

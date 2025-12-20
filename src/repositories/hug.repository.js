@@ -1,66 +1,44 @@
-import { InferenceClient } from "@huggingface/inference";
+import Groq from "groq-sdk";
 import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 
 dotenv.config();
 
 const prisma = new PrismaClient();
-const HF_TOKEN = process.env.HF_TOKEN;
-const client = new InferenceClient({
-  accessToken: HF_TOKEN,
-});
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 export const hugRepository = {
-  // 1. Hugging Face API 호출
   async fetchEmotionAnalysis(text) {
-    try {
-      const response = await fetch(
-        "https://router.huggingface.co/hf-inference/models/monologg/koelectra-base-finetuned-emotion",
+    const completion = await groq.chat.completions.create({
+      // Llama 3 모델 사용 (매우 영리함)
+      messages: [
         {
-          headers: {
-            Authorization: `Bearer ${process.env.HF_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({ inputs: text }),
-        }
-      );
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const result = await response.json();
-        // 에러가 없고 정상 배열이 오면 반환
-        if (!result.error) return result;
-      }
-      throw new Error("Model loading");
-    } catch (error) {
-      console.warn("⚠️ AI 모델 응답 지연으로 인해 Mock 데이터를 사용합니다.");
+          role: "system",
+          content: `당신은 감정 분석 전문가입니다. 입력된 한국어 텍스트를 분석하여 아래 10가지 감정의 비율을 합산 100이 되도록 정수로 반환하세요.
+          오직 JSON 형식으로만 응답하세요.
+          감정 목록: Boredom, Worried, Smile, Joyful, Happy, Angry, Shameful, Unrest, Afraid, Sad
+          응답 형식: {"emotions": [{"label": "Happy", "percentage": 85}, {"label": "Sad", "percentage": 5}, ...]}`,
+        },
+        { role: "user", content: text },
+      ],
+      model: "llama-3.3-70b-versatile",
+      response_format: { type: "json_object" },
+    });
 
-      // ✅ 실제 모델 응답과 동일한 규격의 가짜 데이터
-      return [
-        { label: "행복", score: 0.85 },
-        { label: "중립", score: 0.1 },
-        { label: "슬픔", score: 0.05 },
-      ];
-    }
+    const result = JSON.parse(completion.choices[0].message.content);
+    return result.emotions;
   },
 
   async warmupModel() {
-    console.log("🚀 Hugging Face 모델 웜업 시작...");
-    if (!HF_TOKEN) {
-      console.error("❌ 에러: HF_TOKEN이 환경 변수에 설정되지 않았습니다.");
-      return;
-    }
+    console.log("🚀 Groq API 연결 확인 중...");
     try {
-      await this.fetchEmotionAnalysis("웜업");
-      console.log("✅ 모델 준비 완료!");
-    } catch (error) {
-      if (error.message.includes("loading")) {
-        console.log(
-          "⏳ 모델이 아직 깨어나는 중입니다. 잠시 후 다시 시도하면 정상 작동합니다."
-        );
-      } else {
-        console.error("❌ 모델 웜업 실패:", error.message);
+      if (!process.env.GROQ_API_KEY) {
+        throw new Error("GROQ_API_KEY가 .env 파일에 없습니다.");
       }
+      await this.fetchEmotionAnalysis("테스트");
+      console.log("✅ Groq 연결 및 분석 준비 완료!");
+    } catch (error) {
+      console.error("❌ Groq 연결 실패:", error.message);
     }
   },
   // 2. 모든 분석 데이터 DB 저장 (Prisma 트랜잭션)
@@ -84,8 +62,6 @@ export const hugRepository = {
     });
   },
 };
-
-// 감정 이름을 DB의 고유 ID로 변환하는 함수
 const getEmotionId = (label) => {
   const map = {
     Boredom: 1,
