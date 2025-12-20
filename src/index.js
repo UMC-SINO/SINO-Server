@@ -21,6 +21,7 @@ import {
 } from "./controllers/post.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
+import { warmupModel } from "./repositories/hug.repository.js";
 dotenv.config();
 
 const app = express();
@@ -138,5 +139,6 @@ app.use((err, req, res, next) => {
 
 // 서버 실행
 app.listen(port, () => {
+  warmupModel(); // huggingface 모델 웜업
   console.log(`Example app listening on port ${port}`);
 });
