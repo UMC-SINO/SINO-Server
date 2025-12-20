@@ -30,11 +30,11 @@ model aiAnalysis {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model aiAnalyzedEmotion {
-  id          Int        @id @default(autoincrement())
-  analysis_id Int
-  emotion_name String    @db.VarChar(15)
-  percentage  Decimal    @db.Decimal(5, 2)
-  aiAnalysis  aiAnalysis @relation(fields: [analysis_id], references: [id], onDelete: Cascade, map: "fk_aie_analysis")
+  id           Int        @id @default(autoincrement())
+  analysis_id  Int
+  emotion_name emotion_name
+  percentage   Decimal    @db.Decimal(5, 2)
+  aiAnalysis   aiAnalysis @relation(fields: [analysis_id], references: [id], onDelete: Cascade, map: "fk_aie_analysis")
 
   @@unique([analysis_id, emotion_name], map: "uq_aie_analysis_emotion_name")
   @@index([analysis_id], map: "idx_aie_analysis_id")
