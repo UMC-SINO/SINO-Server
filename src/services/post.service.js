@@ -6,6 +6,8 @@ import {
   getSignalPostByYear,
   getSignalPostByMonth,
   getSignalPostByBookmark,
+  updatePostOneline,
+  updateEmotion,
 } from "../repositories/post.repository.js";
 import {
   InvalidPostIdError,
@@ -158,4 +160,50 @@ export const getPostById = async (postId) => {
   }
 
   return post;
+};
+
+export const addOnelineToPost = async (postId, oneline) => {
+  const postIdNum = parseId(postId);
+  if (!postIdNum) {
+    throw new InvalidPostIdError({ postId });
+  }
+  const post = await findById(postIdNum);
+  if (!post) {
+    throw new PostNotFoundError({ postId: postIdNum });
+  }
+  try {
+    const updatedPost = await updatePostOneline(postIdNum, oneline);
+    return updatedPost;
+  } catch (error) {
+    if (error?.code === "P2025") {
+      throw new PostNotFoundError({ postId: postIdNum });
+    } 
+    throw new InternalServerError(
+      { postId: postIdNum, detail: error?.message },
+      "oneline 처리 중 오류가 발생했습니다."
+    );
+  }
+};
+
+export const updateEmotion = async (postId, emotion) => {
+  const postIdNum = parseId(postId);
+  if (!postIdNum) {
+    throw new InvalidPostIdError({ postId });
+  }
+  const post = await findById(postIdNum);
+  if (!post) {
+    throw new PostNotFoundError({ postId: postIdNum });
+  } 
+  try {
+    const updatedPost = await updateEmotion(postIdNum, emotion);
+    return updatedPost;
+  } catch (error) {
+    if (error?.code === "P2025") {
+      throw new PostNotFoundError({ postId: postIdNum });
+    } 
+    throw new InternalServerError(
+      { postId: postIdNum, detail: error?.message },
+      "감정 처리 중 오류가 발생했습니다."
+    );
+  }
 };

@@ -1,5 +1,5 @@
-import { bookmarkToggle, deletePost, getSignalPost, getNoisePost } from "../services/post.service.js";
-import { bodyToPostRequest } from "../dtos/post.dto.js";
+import { bookmarkToggle, deletePost, getSignalPost, getNoisePost, updateEmotion, addOnelineToPost } from "../services/post.service.js";
+import { bodyToPostRequest, bodyToPostEmotion } from "../dtos/post.dto.js";
 
 /**
  * @swagger
@@ -212,6 +212,28 @@ export const handlePost = async (req, res, next) => {
   try {
     const postId = Number(req.params.postId);
     const result = await getPostById(postId);
+    return res.success(result);
+  } catch (error) { 
+    return next(error);
+  }
+};
+
+export const handlePostOneline = async (req, res, next) => {
+  try {
+    const postId = Number(req.params.postId);
+    const { oneline } = req.body;
+    const result = await addOnelineToPost(postId, oneline);
+    return res.success(result);
+  } catch (error) { 
+    return next(error);
+  }
+};
+
+export const handlePostEmotion = async (req, res, next) => {
+  try {
+    const postId = Number(req.params.postId);
+    const emotion = bodyToPostEmotion(req.body);
+    const result = await updateEmotion(postId, emotion);
     return res.success(result);
   } catch (error) { 
     return next(error);

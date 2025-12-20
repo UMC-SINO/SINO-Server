@@ -20,6 +20,9 @@ import {
   handleBookmarkToggle,
   handleSignalPosts,
   handleNoisePosts,
+  handlePost,
+  handlePostOneline,
+  handlePostEmotion,
 } from "./controllers/post.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
@@ -101,6 +104,8 @@ app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
 app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
 app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
 app.get("/api/posts/:postId", asyncHandler(handlePost));
+app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline));
+app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion));
 
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
