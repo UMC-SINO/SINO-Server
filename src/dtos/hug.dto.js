@@ -23,7 +23,7 @@ export class GetAnalysisRequestDto {
 export class GetAnalysisResponseDto {
   constructor(analysis) {
     this.signalNoiseResult = analysis.signal_noise_result;
-    this.emotions = analysis.aiAnalyzedEmotions.map((e) => ({
+    this.emotions = analysis.aiAnalyzedEmotion.map((e) => ({
       emotion_name: e.emotion_name,
       percentage: e.percentage,
     }));

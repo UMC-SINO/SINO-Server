@@ -64,7 +64,7 @@ export const hugRepository = {
     return await prisma.aiAnalysis.findFirst({
       where: { post_id: postId },
       include: {
-        aiAnalyzedEmotions: {
+        aiAnalyzedEmotion: {
           orderBy: {
             percentage: "desc",
           },

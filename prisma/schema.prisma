@@ -32,14 +32,12 @@ model aiAnalysis {
 model aiAnalyzedEmotion {
   id          Int        @id @default(autoincrement())
   analysis_id Int
-  emotion_id  Int
+  emotion_name String    @db.VarChar(15)
   percentage  Decimal    @db.Decimal(5, 2)
   aiAnalysis  aiAnalysis @relation(fields: [analysis_id], references: [id], onDelete: Cascade, map: "fk_aie_analysis")
-  emotion     emotion    @relation(fields: [emotion_id], references: [id], map: "fk_aie_emotion")
 
-  @@unique([analysis_id, emotion_id], map: "uq_aie_analysis_emotion")
+  @@unique([analysis_id, emotion_name], map: "uq_aie_analysis_emotion_name")
   @@index([analysis_id], map: "idx_aie_analysis_id")
-  @@index([emotion_id], map: "idx_aie_emotion_id")
 }
 
 model emotion {
@@ -47,7 +45,6 @@ model emotion {
   post_id             Int
   emotion_name        emotion_name          
   modified            Boolean               @default(false)
-  aiAnalyzedEmotion   aiAnalyzedEmotion[]
   userSelectedEmotion userSelectedEmotion[]
    post                post                  @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_emotion_post")
 }
