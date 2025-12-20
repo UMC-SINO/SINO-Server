@@ -168,7 +168,7 @@ export const getPostById = async (postId) => {
   if (!post) {
     throw new PostNotFoundError({ postId: postIdNum });
   }
-
+  
   return post;
 };
 
