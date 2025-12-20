@@ -44,7 +44,8 @@ model aiAnalyzedEmotion {
 
 model emotion {
   id                  Int                   @id @default(autoincrement())
-  emotion_name        String                @unique(map: "uq_emotion_name") @db.VarChar(20)
+  emotion_name        emotion               @unique(map: "uq_emotion_name") @db.VarChar(20)
+  modified            Boolean               @default(false)
   aiAnalyzedEmotion   aiAnalyzedEmotion[]
   userSelectedEmotion userSelectedEmotion[]
 }
@@ -102,4 +103,17 @@ enum aiAnalysis_signal_noise_result {
 enum post_signal_noise {
   signal
   noise
+}
+
+enum emotion {
+  Boredom
+  Worried
+  Smile
+  Joyful
+  Happy
+  Angry
+  Shameful
+  Unrest
+  Afraid
+  Sad
 }
