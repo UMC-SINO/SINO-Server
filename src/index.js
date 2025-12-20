@@ -16,6 +16,7 @@ import {
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
 import { getMe } from "./controllers/me.controller.js";
+import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
 
 
 import {
@@ -114,13 +115,13 @@ app.post("/api/report/:year/:month", asyncHandler(handleReport));
 app.post("/api/report/:year", asyncHandler(handleReport));
 
 // 회원가입
-app.post("/api/v1/users/signup", handleUserSignUp);
 
-app.post(
-  "/api/v1/posts/:postId/photos",
-  postPhotosUploadMiddleware,
-  handleUploadPostPhotos
-);
+// photo 4개 올릴 때 사용했던 것것
+//app.post(
+//  "/api/v1/posts/:postId/photos",
+//  postPhotosUploadMiddleware,
+//  handleUploadPostPhotos
+//);
 
 // auth (dev)
 app.post(
@@ -146,8 +147,11 @@ app.get("/api/posts/:postId", isLogin, asyncHandler(handleGetPost));
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
-//
+// get me
 app.get("/api/auth/me", isLogin, asyncHandler(getMe));
+
+// create post
+app.post("/api/posts/create", isLogin, createPostUploadMiddleware, asyncHandler(handleCreatePost));
 
 // 
 app.use((err, req, res, next) => {
