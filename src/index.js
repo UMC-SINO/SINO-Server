@@ -139,17 +139,22 @@ app.get(
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
-// ✅ 전역 에러 처리 미들웨어는 “모든 라우트 등록 끝난 다음” 맨 아래
+// 
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
 
   const status = err.status || err.statusCode || 500;
 
-  res.status(status).error({
-    errorCode: err.errorCode || "COMMON_001",
-    reason: err.reason || err.message || "Internal Server Error",
-    data: err.data || null,
+  return res.status(status).json({
+    resultType: "FAIL",
+    error: {
+      errorCode: err.errorCode || "COMMON_001",
+      reason: err.reason || err.message || "Internal Server Error",
+      data: err.data || null,
+    },
+    success: null,
   });
+  
 });
 
 // 서버 실행
