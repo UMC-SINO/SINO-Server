@@ -8,6 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PostType {
+  signal
+  noise
+}
+
 model User {
   id         Int        @id @default(autoincrement())
   name       String     @unique(map: "uq_user_name") @db.VarChar(15)
@@ -85,6 +90,7 @@ model post {
   deleted_at          DateTime?             @db.DateTime(0)
   created_at          DateTime              @default(now()) @db.DateTime(0)
   book_mark           Boolean               @default(false)
+  signal_noise        PostType              @default(signal)
   aiAnalysis          aiAnalysis?
   oneLine             oneLine[]
   photo               photo[]

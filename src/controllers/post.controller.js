@@ -1,4 +1,5 @@
-import { bookmarkToggle, deletePost } from "../services/post.service.js";
+import { bookmarkToggle, deletePost, getSignalPost, getNoisePost } from "../services/post.service.js";
+import { bodyToPostRequest } from "../dtos/post.dto.js";
 
 /**
  * @swagger
@@ -182,6 +183,26 @@ export const handlePostDelete = async (req, res, next) => {
       message: `Post with ID ${postId} deleted.`,
       deletedPost: result,
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const handleSignalPost = async (req, res, next) => {
+  try {
+    const postRequest = bodyToPostRequest(req.body);
+    const result = await getSignalPost(postRequest);
+    return res.success({ result: result });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const handleNoisePost = async (req, res, next) => {
+  try {
+    const postRequest = bodyToPostRequest(req.body);
+    const result = await getNoisePost(postRequest);
+    return res.success({ result: result });
   } catch (error) {
     return next(error);
   }
