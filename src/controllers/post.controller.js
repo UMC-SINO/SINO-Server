@@ -199,34 +199,44 @@ export const handlePostDelete = async (req, res, next) => {
 /**
  * @swagger
  * /api/posts/signal:
- *   get:
+ *   post:
  *     summary: Signal 게시글 목록 조회
  *     tags:
  *       - Post
  *     description: 유저의 Signal 게시글을 연도별, 월별 또는 북마크 여부에 따라 필터링하여 조회합니다. (최대 16개)
- *     parameters:
- *       - in: query
- *         name: userId
- *         required: true
- *         schema:
- *           type: integer
- *       - in: query
- *         name: filter
- *         required: true
- *         schema:
- *           type: string
- *           enum:
- *             - year
- *             - month
- *             - bookmark
- *       - in: query
- *         name: year
- *         schema:
- *           type: integer
- *       - in: query
- *         name: month
- *         schema:
- *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - filter
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *               filter:
+ *                 type: string
+ *                 enum:
+ *                   - year
+ *                   - month
+ *                   - bookmark
+ *                 example: year
+ *               year:
+ *                 type: string
+ *                 description: "filter가 year 또는 month일 때 사용 (optional)"
+ *                 example: "2025"
+ *               month:
+ *                 type: string
+ *                 description: "filter가 month일 때 사용 (optional)"
+ *                 example: ""
+ *           example:
+ *             userId: 1
+ *             filter: "year"
+ *             year: "2025"
+ *             month: ""
  *     responses:
  *       200:
  *         description: 조회 성공
@@ -284,45 +294,54 @@ export const handleSignalPosts = async (req, res, next) => {
   }
 };
 
+
 /**
  * @swagger
  * /api/posts/noise:
- *   get:
+ *   post:
  *     summary: Noise 게시글 목록 조회
  *     tags:
  *       - Post
  *     description: |
  *       유저의 Noise 게시글을 연도별, 월별 또는 북마크 여부에 따라 필터링하여 조회합니다. (최대 16개)
- *       - filter=year: 해당 연도의 데이터를 가져옵니다. (year 파라미터 필수)
- *       - filter=month: 해당 연도/월의 데이터를 가져옵니다. (year, month 파라미터 필수)
+ *       - filter=year: 해당 연도의 데이터를 가져옵니다. (year 파라미터 권장)
+ *       - filter=month: 해당 연도/월의 데이터를 가져옵니다. (year, month 파라미터 권장)
  *       - filter=bookmark: 북마크된 Noise 데이터를 가져옵니다.
- *     parameters:
- *       - in: query
- *         name: userId
- *         required: true
- *         schema:
- *           type: integer
- *         description: 사용자 ID
- *       - in: query
- *         name: filter
- *         required: true
- *         schema:
- *           type: string
- *           enum:
- *             - year
- *             - month
- *             - bookmark
- *         description: 필터 타입
- *       - in: query
- *         name: year
- *         schema:
- *           type: integer
- *         description: 필터링할 연도 (year/month 필터 시 필수)
- *       - in: query
- *         name: month
- *         schema:
- *           type: integer
- *         description: 필터링할 월 (month 필터 시 필수)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - filter
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *                 example: 1
+ *                 description: 사용자 ID
+ *               filter:
+ *                 type: string
+ *                 enum:
+ *                   - year
+ *                   - month
+ *                   - bookmark
+ *                 example: year
+ *                 description: 필터 타입
+ *               year:
+ *                 type: string
+ *                 description: "filter가 year 또는 month일 때 사용 (optional)"
+ *                 example: "2025"
+ *               month:
+ *                 type: string
+ *                 description: "filter가 month일 때 사용 (optional)"
+ *                 example: ""
+ *           example:
+ *             userId: 1
+ *             filter: "year"
+ *             year: "2025"
+ *             month: ""
  *     responses:
  *       200:
  *         description: 조회 성공
@@ -395,6 +414,7 @@ export const handleNoisePosts = async (req, res, next) => {
     return next(error);
   }
 };
+
 
 export const handlePost = async (req, res, next) => {
   try {
