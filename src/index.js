@@ -15,6 +15,9 @@ import {
 
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
+import { getMe } from "./controllers/me.controller.js";
+
+
 // import {
 //   handlePostDelete,
 //   handleBookmarkToggle,
@@ -138,6 +141,9 @@ app.get(
 );
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
+
+//
+app.get("/api/auth/me", isLogin, asyncHandler(getMe));
 
 // 
 app.use((err, req, res, next) => {
