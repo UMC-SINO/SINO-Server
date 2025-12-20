@@ -15,18 +15,28 @@ import {
 
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
-// import {
-//   handlePostDelete,
-//   handleBookmarkToggle,
-//   handleSignalPosts,
-//   handleNoisePosts,
-//   handlePost,
-//   handlePostOneline,
-//   handlePostEmotion,
-// } from "./controllers/post.controller.js";
+import { getMe } from "./controllers/me.controller.js";
+import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
+
+
+import {
+  handlePostDelete,
+  handleBookmarkToggle,
+  handleSignalPosts,
+  handleNoisePosts,
+  handlePost,
+  handlePostOneline,
+  handlePostEmotion,
+} from "./controllers/post.controller.js";
+import { handleReport } from "./controllers/report.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
 import { hugRepository } from "./repositories/hug.repository.js";
+import { handleGetPost } from "./controllers/image.controller.js";
+import {
+  updatePostUploadMiddleware,
+  handleUpdatePost,
+} from "./controllers/postUpdate.controller.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -56,6 +66,10 @@ app.use(
     },
   })
 );
+
+
+
+
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -99,22 +113,24 @@ app.get("/", (req, res) => {
 // 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
-// app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
-// app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
-// app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
-// app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
-// app.get("/api/posts/:postId", asyncHandler(handlePost));
-// app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline));
-// app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion));
+app.patch("/api/posts/:postId/bookmark", isLogin, asyncHandler(handleBookmarkToggle)); //
+app.delete("/api/posts/:postId", isLogin, asyncHandler(handlePostDelete)); //
+app.get("/api/posts/signal", isLogin, asyncHandler(handleSignalPosts)); //
+app.get("/api/posts/noise", isLogin, asyncHandler(handleNoisePosts)); //
+app.get("/api/posts/:postId", isLogin, asyncHandler(handlePost)); //
+app.post("/api/posts/:postId/oneline", isLogin, asyncHandler(handlePostOneline)); //
+app.patch("/api/posts/:postId/emotion", isLogin, asyncHandler(handlePostEmotion)); //
+app.get("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
+app.get("/api/report/:year", isLogin, asyncHandler(handleReport));
 
 // 회원가입
-app.post("/api/v1/users/signup", handleUserSignUp);
 
-app.post(
-  "/api/v1/posts/:postId/photos",
-  postPhotosUploadMiddleware,
-  handleUploadPostPhotos
-);
+// photo 4개 올릴 때 사용했던 것것
+//app.post(
+//  "/api/v1/posts/:postId/photos",
+//  postPhotosUploadMiddleware,
+//  handleUploadPostPhotos
+//);
 
 // auth (dev)
 app.post(
@@ -136,20 +152,42 @@ app.get(
   isLogin,
   asyncHandler(hugController.getAnalysisResult)
 );
+app.get("/api/posts/:postId", isLogin, asyncHandler(handleGetPost));
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
-// ✅ 전역 에러 처리 미들웨어는 “모든 라우트 등록 끝난 다음” 맨 아래
+// get me
+app.get("/api/auth/me", isLogin, asyncHandler(getMe));
+
+// create post
+app.post("/api/posts/create", isLogin, createPostUploadMiddleware, asyncHandler(handleCreatePost));
+
+// update post
+app.patch(
+  "/api/posts/:postId",
+  isLogin,
+  updatePostUploadMiddleware,
+  asyncHandler(handleUpdatePost)
+);
+
+
+
+// 
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
 
   const status = err.status || err.statusCode || 500;
 
-  res.status(status).error({
-    errorCode: err.errorCode || "COMMON_001",
-    reason: err.reason || err.message || "Internal Server Error",
-    data: err.data || null,
+  return res.status(status).json({
+    resultType: "FAIL",
+    error: {
+      errorCode: err.errorCode || "COMMON_001",
+      reason: err.reason || err.message || "Internal Server Error",
+      data: err.data || null,
+    },
+    success: null,
   });
+  
 });
 
 // 서버 실행
