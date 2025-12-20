@@ -1,12 +1,12 @@
 // src/index.js
 import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
-
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import {
   postPhotosUploadMiddleware,
@@ -15,16 +15,18 @@ import {
 
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
-import {
-  handlePostDelete,
-  handleBookmarkToggle,
-  handleSignalPosts,
-  handleNoisePosts,
-  handlePost,
-  handlePostOneline,
-  handlePostEmotion,
-} from "./controllers/post.controller.js";
-dotenv.config();
+// import {
+//   handlePostDelete,
+//   handleBookmarkToggle,
+//   handleSignalPosts,
+//   handleNoisePosts,
+//   handlePost,
+//   handlePostOneline,
+//   handlePostEmotion,
+// } from "./controllers/post.controller.js";
+import { hugController } from "./controllers/hug.controller.js";
+import { UserNotFoundError } from "./errors/auth.error.js";
+import { hugRepository } from "./repositories/hug.repository.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -80,8 +82,6 @@ const isLogin = (req, res, next) => {
     req.userName = req.session.user.name;
     next();
   } else {
-    // dev 브랜치에 UserNotFoundError가 정의/임포트되어있다면 그대로 사용,
-    // 아니라면 아래처럼 일반 Error로 바꿔도 됩니다.
     throw new UserNotFoundError(null, "로그인이 필요합니다.");
   }
 };
@@ -99,13 +99,13 @@ app.get("/", (req, res) => {
 // 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
-app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
-app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
-app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
-app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
-app.get("/api/posts/:postId", asyncHandler(handlePost));
-app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline));
-app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion));
+// app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
+// app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
+// app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
+// app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
+// app.get("/api/posts/:postId", asyncHandler(handlePost));
+// app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline));
+// app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion));
 
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
@@ -126,7 +126,16 @@ app.post("/api/auth/signup", asyncHandler(authController.signup));
 app.get("/api/auth/test", isLogin, (req, res) => {
   res.success({ message: `${req.userName}님, 세션 인증에 성공했습니다!` });
 });
-
+app.post(
+  "/api/posts/:postId/analyze",
+  isLogin,
+  asyncHandler(hugController.analyzeExistingPost)
+);
+app.get(
+  "/api/posts/:postId/analysis",
+  isLogin,
+  asyncHandler(hugController.getAnalysisResult)
+);
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
@@ -144,6 +153,10 @@ app.use((err, req, res, next) => {
 });
 
 // 서버 실행
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.PORT || 3000, async () => {
+  console.log(
+    `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
+  );
+  await hugRepository.warmupModel();
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
