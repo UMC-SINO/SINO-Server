@@ -1,7 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { getPostDetail } from "../services/image.service.js";
 import { InvalidPostIdError } from "../errors/post.error.js";
-
 /**
  * @swagger
  * /api/posts/{postId}:
@@ -47,6 +46,31 @@ import { InvalidPostIdError } from "../errors/post.error.js";
  *                       type: string
  *                       nullable: true
  *                       example: "https://my-bucket.s3.region.amazonaws.com/posts/1/uuid.jpg"
+ *       400:
+ *         description: 잘못된 요청 (유효하지 않은 postId 형식)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 resultType:
+ *                   type: string
+ *                   example: FAIL
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     errorCode:
+ *                       type: string
+ *                       example: P001
+ *                     reason:
+ *                       type: string
+ *                       example: "유효하지 않은 게시글 ID 입니다."
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         received:
+ *                           type: string
+ *                           example: "abc"
  *       404:
  *         description: 게시글을 찾을 수 없음
  *         content:
@@ -62,13 +86,15 @@ import { InvalidPostIdError } from "../errors/post.error.js";
  *                   properties:
  *                     errorCode:
  *                       type: string
- *                       example: POST_NOT_FOUND
+ *                       example: P002
  *                     reason:
  *                       type: string
- *                       example: "존재하지 않는 게시글입니다."
- *       400:
- *         description: 잘못된 요청 (postId가 숫자가 아님 등)
+ *                       example: "일치하는 게시글이 없습니다."
+ *                     data:
+ *                       nullable: true
+ *                       example: null
  */
+
 export const handleGetPost = async (req, res) => {
   const postId = Number(req.params.postId);
   if (isNaN(postId) || postId <= 0) {
