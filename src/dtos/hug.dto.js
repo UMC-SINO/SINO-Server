@@ -13,3 +13,20 @@ export class HugAnalysisResponseDto {
     this.analyzedAt = new Date().toISOString();
   }
 }
+
+export class GetAnalysisRequestDto {
+  constructor(params) {
+    this.postId = parseInt(params.postId);
+  }
+}
+
+export class GetAnalysisResponseDto {
+  constructor(analysis) {
+    this.signalNoiseResult = analysis.signal_noise_result;
+    this.emotions = analysis.aiAnalyzedEmotions.map((e) => ({
+      emotion_name: e.emotion_name,
+      percentage: e.percentage,
+    }));
+    this.analyzedAt = analysis.created_at;
+  }
+}

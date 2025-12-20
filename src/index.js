@@ -119,6 +119,11 @@ app.post(
   isLogin,
   asyncHandler(hugController.analyzeExistingPost)
 );
+app.get(
+  "/api/posts/:postId/analysis",
+  isLogin,
+  asyncHandler(hugController.getAnalysisResult)
+);
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 

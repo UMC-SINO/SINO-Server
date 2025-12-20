@@ -37,3 +37,9 @@ export class PostNotFoundError extends BaseError {
     super(message, 404, "H005", data);
   }
 }
+
+export class AnalysisResultNotFoundError extends BaseError {
+  constructor(data, message = "해당 게시글의 분석 결과가 존재하지 않습니다.") {
+    super(message, 404, "H006", data);
+  }
+}

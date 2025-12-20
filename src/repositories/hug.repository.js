@@ -60,4 +60,15 @@ export const hugRepository = {
       return analysis.id;
     });
   },
+  async getAnalysisByPostId(postId) {
+    return await prisma.aiAnalysis.findFirst({
+      where: { post_id: postId },
+      include: {
+        aiAnalyzedEmotions: true,
+      },
+      orderBy: {
+        created_at: "desc",
+      },
+    });
+  },
 };

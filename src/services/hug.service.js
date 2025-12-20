@@ -1,5 +1,9 @@
 import { hugRepository } from "../repositories/hug.repository.js";
-import { AnalysisFailedError, PostNotFoundError } from "../errors/hug.error.js";
+import {
+  AnalysisFailedError,
+  PostNotFoundError,
+  AnalysisResultNotFoundError,
+} from "../errors/hug.error.js";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -42,5 +46,14 @@ export const hugService = {
       console.error("Service Error:", error);
       throw new AnalysisFailedError({ originalError: error.message });
     }
+  },
+  async getAnalysisResult(postId) {
+    const analysis = await hugRepository.getAnalysisByPostId(postId);
+
+    if (!analysis) {
+      throw new AnalysisResultNotFoundError({ postId });
+    }
+
+    return analysis;
   },
 };
