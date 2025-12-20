@@ -1,6 +1,7 @@
 // src/index.js
 import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
@@ -21,12 +22,10 @@ import {
 } from "./controllers/post.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
-import { warmupModel } from "./repositories/hug.repository.js";
-dotenv.config();
+import { hugRepository } from "./repositories/hug.repository.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
-const client = new InferenceClient(process.env.HF_TOKEN);
 
 // 미들웨어 설정
 app.use(morgan("dev"));
@@ -137,8 +136,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+console.log("현재 토큰:", process.env.HF_TOKEN ? "로드 성공" : "로드 실패!");
 // 서버 실행
 app.listen(port, () => {
-  warmupModel(); // huggingface 모델 웜업
+  hugRepository.warmupModel(); // huggingface 모델 웜업
   console.log(`Example app listening on port ${port}`);
 });

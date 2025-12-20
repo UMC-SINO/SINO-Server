@@ -64,14 +64,14 @@ export const hugController = {
    *                       format: date-time
    *                       example: "2023-10-27T10:00:00.000Z"
    *       400:
-   *         description: 잘못된 요청 (H001: 텍스트 부족, H002: 텍스트 초과)
+   *         description: "잘못된 요청 (H001: 텍스트 부족, H002: 텍스트 초과)"
    *         content:
-   *           application/json:
-   *             example:
-   *               resultType: "FAIL"
-   *               error:
-   *                 errorCode: "H001"
-   *                 reason: "분석을 위해 최소 2자 이상의 텍스트를 입력해주세요."
+   *            application/json:
+   *              example:
+   *                resultType: "FAIL"
+   *                error:
+   *                  errorCode: "H001"
+   *                  reason: "분석을 위해 최소 2자 이상의 텍스트를 입력해주세요."
    *       404:
    *         description: 게시글을 찾을 수 없음 (H005)
    *         content:
