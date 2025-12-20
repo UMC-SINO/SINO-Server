@@ -19,6 +19,8 @@ import {
   handlePostDelete,
   handleBookmarkToggle,
 } from "./controllers/post.controller.js";
+import { hugController } from "./controllers/hug.controller.js";
+import { UserNotFoundError } from "./errors/auth.error.js";
 dotenv.config();
 
 const app = express();
@@ -76,8 +78,6 @@ const isLogin = (req, res, next) => {
     req.userName = req.session.user.name;
     next();
   } else {
-    // dev 브랜치에 UserNotFoundError가 정의/임포트되어있다면 그대로 사용,
-    // 아니라면 아래처럼 일반 Error로 바꿔도 됩니다.
     throw new UserNotFoundError(null, "로그인이 필요합니다.");
   }
 };
@@ -115,7 +115,11 @@ app.post("/api/auth/signup", asyncHandler(authController.signup));
 app.get("/api/auth/test", isLogin, (req, res) => {
   res.success({ message: `${req.userName}님, 세션 인증에 성공했습니다!` });
 });
-
+app.post(
+  "/api/posts/:postId/analyze",
+  isLogin,
+  asyncHandler(hugController.analyzeExistingPost)
+);
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
