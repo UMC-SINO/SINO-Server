@@ -6,8 +6,11 @@ import {
   getSignalPostByYear,
   getSignalPostByMonth,
   getSignalPostByBookmark,
-  updatePostOneline,
-  updateEmotion,
+  getNoisePostByYear,
+  getNoisePostByMonth,
+  getNoisePostByBookmark,
+  createOneline,
+  updatingEmotion,
 } from "../repositories/post.repository.js";
 import {
   InvalidPostIdError,
@@ -16,6 +19,7 @@ import {
   PostAlreadyDeletedError,
 } from "../errors/post.error.js";
 import { UserNotFoundError, InvalidUserIdError } from "../errors/user.error.js";
+import { findByUserId } from "../repositories/user.repository.js";
 
 function parseId(postId) {
   const n = Number(postId);
@@ -89,7 +93,7 @@ export const getSignalPost = async (postRequest) => {
   if (!userId) {
     throw new InvalidUserIdError({ userId: postRequest.userId });
   }
-  const user = await findById(userId);
+  const user = await findByUserId(userId);
   if (!user) {
     throw new UserNotFoundError({ userId: userId });
   }
@@ -119,22 +123,29 @@ export const getSignalPost = async (postRequest) => {
   }
 };
 
-export const getNoisePost = async () => {
+export const getNoisePost = async (postRequest) => {
   const userId = parseId(postRequest.userId);
   if (!userId) {
     throw new InvalidUserIdError({ userId: postRequest.userId });
   }
-  const user = await findById(userId);
+  const user = await findByUserId(userId);
   if (!user) {
     throw new UserNotFoundError({ userId: userId });
   }
   const filter = postRequest.filter;
-  const filterValue = postRequest.filterValue;
-  if (filter === "year" && filterValue != null) {
-    const result = await getNoisePostByYear(userId, filterValue);
+  const y = postRequest.year;
+  const m = postRequest.month;
+  if (filter === "year" && y != null) {
+    const year = parseInt(y, 10);
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year + 1, 0, 1);
+    const result = await getNoisePostByYear(userId, startDate, endDate);
     return result;
-  } else if (filter === "month" && filterValue != null) {
-    const result = await getNoisePostByMonth(userId, filterValue);
+  } else if (filter === "month" && m != null && y != null) {
+    const year = parseInt(y, 10); const month = parseInt(m, 10);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+    const result = await getNoisePostByMonth(userId, startDate, endDate);
     return result;
   } else if (filter === "bookmark") {
     const result = await getNoisePostByBookmark(userId);
@@ -145,7 +156,6 @@ export const getNoisePost = async () => {
       "유효하지 않은 필터 타입입니다."
     );
   }
-  return {};
 };
 
 export const getPostById = async (postId) => {
@@ -172,8 +182,8 @@ export const addOnelineToPost = async (postId, oneline) => {
     throw new PostNotFoundError({ postId: postIdNum });
   }
   try {
-    const updatedPost = await updatePostOneline(postIdNum, oneline);
-    return updatedPost;
+    const updatedOneline = await createOneline(postIdNum, oneline);
+    return updatedOneline;
   } catch (error) {
     if (error?.code === "P2025") {
       throw new PostNotFoundError({ postId: postIdNum });
@@ -195,7 +205,7 @@ export const updateEmotion = async (postId, emotion) => {
     throw new PostNotFoundError({ postId: postIdNum });
   } 
   try {
-    const updatedPost = await updateEmotion(postIdNum, emotion);
+    const updatedPost = await updatingEmotion(postIdNum, emotion);
     return updatedPost;
   } catch (error) {
     if (error?.code === "P2025") {

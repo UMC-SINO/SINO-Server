@@ -24,6 +24,7 @@ import {
   handlePostOneline,
   handlePostEmotion,
 } from "./controllers/post.controller.js";
+import { handleReport } from "./controllers/report.controller.js";
 dotenv.config();
 
 const app = express();
@@ -99,13 +100,15 @@ app.get("/", (req, res) => {
 // 라우트 (asyncHandler로 감싸면 컨트롤러에서 next 처리 안 해도 됨)
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
-app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
-app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
-app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
-app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
-app.get("/api/posts/:postId", asyncHandler(handlePost));
-app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline));
-app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion));
+app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle)); //
+app.delete("/api/posts/:postId", asyncHandler(handlePostDelete)); //
+app.get("/api/posts/signal", asyncHandler(handleSignalPosts)); //
+app.get("/api/posts/noise", asyncHandler(handleNoisePosts)); //
+app.get("/api/posts/:postId", asyncHandler(handlePost)); //
+app.post("/api/posts/:postId/oneline", asyncHandler(handlePostOneline)); //
+app.patch("/api/posts/:postId/emotion", asyncHandler(handlePostEmotion)); //
+app.get("/api/report/:year/:month", asyncHandler(handleReport)); 
+app.get("/api/report/:year", asyncHandler(handleReport));
 
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);

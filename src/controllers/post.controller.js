@@ -1,4 +1,4 @@
-import { bookmarkToggle, deletePost, getSignalPost, getNoisePost, updateEmotion, addOnelineToPost } from "../services/post.service.js";
+import { bookmarkToggle, deletePost, getSignalPost, getNoisePost, updateEmotion, addOnelineToPost, getPostById } from "../services/post.service.js";
 import { bodyToPostRequest, bodyToPostEmotion } from "../dtos/post.dto.js";
 
 /**
@@ -232,7 +232,7 @@ export const handlePostOneline = async (req, res, next) => {
 export const handlePostEmotion = async (req, res, next) => {
   try {
     const postId = Number(req.params.postId);
-    const emotion = bodyToPostEmotion(req.body);
+    const { emotion } = bodyToPostEmotion(req.body);
     const result = await updateEmotion(postId, emotion);
     return res.success(result);
   } catch (error) { 

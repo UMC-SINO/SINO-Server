@@ -7,31 +7,41 @@ export const bodyToPostRequest = (body) => {
     } 
 };
 
+const ALLOWED_EMOTIONS = new Set([
+  "Boredom",
+  "Worried",
+  "Smile",
+  "Joyful",
+  "Happy",
+  "Angry",
+  "Shameful",
+  "Unrest",
+  "Afraid",
+  "Sad",
+]);
+
 export const bodyToPostEmotion = (body) => {
-  const arr = body?.emotion_name;
+  const arr = body.emotion;
 
   if (!Array.isArray(arr)) {
-    throw new Error("emotion_name must be an array");
+    throw new Error("emotion must be an array");
   }
 
-  // 문자열만, trim, 빈값 제거
-  const cleaned = arr
-    .filter((v) => typeof v === "string")
-    .map((v) => v.trim())
-    .filter((v) => v.length > 0);
-
-  // (선택) 중복 제거
-  const unique = [...new Set(cleaned)];
-
-  // 0개면 에러 (원하면 정책 바꿔도 됨)
-  if (unique.length === 0) {
-    throw new Error("emotion_name must contain at least one valid string");
+  // 5개 이상이면 에러(= 최대 4개)
+  if (arr.length > 5) {
+    throw new Error("emotion must contain less than 5 items");
   }
 
-  // 5개 초과면 에러 (정책)
-  if (unique.length > 5) {
-    throw new Error("emotion_name can contain up to 5 items");
+  // 값 검증: 문자열 + enum 포함 여부
+  for (const v of arr) {
+    if (typeof v !== "string") {
+      throw new Error("emotion array must contain strings only");
+    }
+    if (!ALLOWED_EMOTIONS.has(v)) {
+      throw new Error(`Invalid emotion value: ${v}`);
+    }
   }
 
-  return { emotion_name: unique };
+  // 필요한 형태로 반환 (서비스/레포에서 그대로 쓰기 좋게)
+  return { emotion: arr };
 };
