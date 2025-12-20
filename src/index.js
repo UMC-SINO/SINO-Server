@@ -30,7 +30,7 @@ import { getMe } from "./controllers/me.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
 import { UserNotFoundError } from "./errors/auth.error.js";
 import { hugRepository } from "./repositories/hug.repository.js";
-
+import { handleGetPost } from "./controllers/image.controller.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -139,6 +139,7 @@ app.get(
   isLogin,
   asyncHandler(hugController.getAnalysisResult)
 );
+app.get("/api/posts/:postId", isLogin, asyncHandler(handleGetPost));
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 

@@ -10,7 +10,8 @@
     "prisma:db-pull": "./node_modules/.bin/prisma db pull",
     "prisma:studio": "./node_modules/.bin/prisma studio",
     "db:gen": "./node_modules/.bin/prisma generate",
-    "db:mig": "./node_modules/.bin/prisma migrate dev"
+    "db:mig": "./node_modules/.bin/prisma migrate dev",
+    "db:push": "./node_modules/.bin/prisma db push"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.955.0",
