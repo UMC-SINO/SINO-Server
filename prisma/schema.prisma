@@ -44,10 +44,12 @@ model aiAnalyzedEmotion {
 
 model emotion {
   id                  Int                   @id @default(autoincrement())
-  emotion_name        emotion               @unique(map: "uq_emotion_name") @db.VarChar(20)
+  post_id             Int
+  emotion_name        emotion_name          
   modified            Boolean               @default(false)
   aiAnalyzedEmotion   aiAnalyzedEmotion[]
   userSelectedEmotion userSelectedEmotion[]
+   post                post                  @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_emotion_post")
 }
 
 model oneLine {
@@ -76,6 +78,7 @@ model post {
   oneLine             oneLine[]
   user                User                  @relation(fields: [user_id], references: [id], map: "fk_post_user")
   userSelectedEmotion userSelectedEmotion[]
+  emotion             emotion[]
 
   @@index([user_id], map: "idx_post_user_id")
 }
@@ -105,7 +108,7 @@ enum post_signal_noise {
   noise
 }
 
-enum emotion {
+enum emotion_name {
   Boredom
   Worried
   Smile
