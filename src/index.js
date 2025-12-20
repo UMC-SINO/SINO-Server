@@ -1,12 +1,12 @@
 // src/index.js
 import cors from "cors";
 import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import session from "express-session";
 import { specs } from "../swagger.config.js";
-
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import {
   postPhotosUploadMiddleware,
@@ -15,6 +15,9 @@ import {
 
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
+import { getMe } from "./controllers/me.controller.js";
+
+
 import {
   handlePostDelete,
   handleBookmarkToggle,
@@ -25,8 +28,10 @@ import {
   handlePostEmotion,
 } from "./controllers/post.controller.js";
 import { handleReport } from "./controllers/report.controller.js";
-dotenv.config();
-
+import { hugController } from "./controllers/hug.controller.js";
+import { UserNotFoundError } from "./errors/auth.error.js";
+import { hugRepository } from "./repositories/hug.repository.js";
+import { handleGetPost } from "./controllers/image.controller.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -81,8 +86,6 @@ const isLogin = (req, res, next) => {
     req.userName = req.session.user.name;
     next();
   } else {
-    // dev 브랜치에 UserNotFoundError가 정의/임포트되어있다면 그대로 사용,
-    // 아니라면 아래처럼 일반 Error로 바꿔도 됩니다.
     throw new UserNotFoundError(null, "로그인이 필요합니다.");
   }
 };
@@ -129,24 +132,46 @@ app.post("/api/auth/signup", asyncHandler(authController.signup));
 app.get("/api/auth/test", isLogin, (req, res) => {
   res.success({ message: `${req.userName}님, 세션 인증에 성공했습니다!` });
 });
-
+app.post(
+  "/api/posts/:postId/analyze",
+  isLogin,
+  asyncHandler(hugController.analyzeExistingPost)
+);
+app.get(
+  "/api/posts/:postId/analysis",
+  isLogin,
+  asyncHandler(hugController.getAnalysisResult)
+);
+app.get("/api/posts/:postId", isLogin, asyncHandler(handleGetPost));
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 
-// ✅ 전역 에러 처리 미들웨어는 “모든 라우트 등록 끝난 다음” 맨 아래
+//
+app.get("/api/auth/me", isLogin, asyncHandler(getMe));
+
+// 
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
 
   const status = err.status || err.statusCode || 500;
 
-  res.status(status).error({
-    errorCode: err.errorCode || "COMMON_001",
-    reason: err.reason || err.message || "Internal Server Error",
-    data: err.data || null,
+  return res.status(status).json({
+    resultType: "FAIL",
+    error: {
+      errorCode: err.errorCode || "COMMON_001",
+      reason: err.reason || err.message || "Internal Server Error",
+      data: err.data || null,
+    },
+    success: null,
   });
+  
 });
 
 // 서버 실행
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(process.env.PORT || 3000, async () => {
+  console.log(
+    `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
+  );
+  await hugRepository.warmupModel();
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });

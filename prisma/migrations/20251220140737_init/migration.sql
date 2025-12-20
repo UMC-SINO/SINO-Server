@@ -37,9 +37,10 @@ CREATE TABLE `aiAnalyzedEmotion` (
 -- CreateTable
 CREATE TABLE `emotion` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `emotion_name` VARCHAR(20) NOT NULL,
+    `post_id` INTEGER NOT NULL,
+    `emotion_name` ENUM('Boredom', 'Worried', 'Smile', 'Joyful', 'Happy', 'Angry', 'Shameful', 'Unrest', 'Afraid', 'Sad') NOT NULL,
+    `modified` BOOLEAN NOT NULL DEFAULT false,
 
-    UNIQUE INDEX `uq_emotion_name`(`emotion_name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -95,6 +96,9 @@ ALTER TABLE `aiAnalyzedEmotion` ADD CONSTRAINT `fk_aie_analysis` FOREIGN KEY (`a
 ALTER TABLE `aiAnalyzedEmotion` ADD CONSTRAINT `fk_aie_emotion` FOREIGN KEY (`emotion_id`) REFERENCES `emotion`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `emotion` ADD CONSTRAINT `fk_emotion_post` FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `oneLine` ADD CONSTRAINT `fk_oneLine_post` FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -105,4 +109,3 @@ ALTER TABLE `userSelectedEmotion` ADD CONSTRAINT `fk_use_emotion` FOREIGN KEY (`
 
 -- AddForeignKey
 ALTER TABLE `userSelectedEmotion` ADD CONSTRAINT `fk_use_post` FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
