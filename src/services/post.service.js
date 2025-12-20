@@ -145,3 +145,17 @@ export const getNoisePost = async () => {
   }
   return {};
 };
+
+export const getPostById = async (postId) => {
+  const postIdNum = parseId(postId);
+  if (!postIdNum) {
+    throw new InvalidPostIdError({ postId });
+  }
+
+  const post = await findById(postIdNum);
+  if (!post) {
+    throw new PostNotFoundError({ postId: postIdNum });
+  }
+
+  return post;
+};

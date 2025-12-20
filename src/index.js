@@ -18,8 +18,8 @@ import authController from "./controllers/auth.controller.js";
 import {
   handlePostDelete,
   handleBookmarkToggle,
-  handleSignalPost,
-  handleNoisePost,
+  handleSignalPosts,
+  handleNoisePosts,
 } from "./controllers/post.controller.js";
 dotenv.config();
 
@@ -98,8 +98,9 @@ app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
 app.patch("/api/posts/:postId/bookmark", asyncHandler(handleBookmarkToggle));
 app.delete("/api/posts/:postId", asyncHandler(handlePostDelete));
-app.get("/api/posts/signal", asyncHandler(handleSignalPost));
-app.get("/api/posts/noise", asyncHandler(handleNoisePost));
+app.get("/api/posts/signal", asyncHandler(handleSignalPosts));
+app.get("/api/posts/noise", asyncHandler(handleNoisePosts));
+app.get("/api/posts/:postId", asyncHandler(handlePost));
 
 // 회원가입
 app.post("/api/v1/users/signup", handleUserSignUp);
