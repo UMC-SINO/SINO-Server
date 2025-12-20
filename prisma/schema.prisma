@@ -9,13 +9,12 @@ datasource db {
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
-  name       String     @unique(map: "uq_user_name") @db.VarChar(15)
-  is_deleted Boolean    @default(false)
-  deleted_at DateTime?  @db.DateTime(0)
-  created_at DateTime   @default(now()) @db.DateTime(0)
+  id         Int       @id @default(autoincrement())
+  name       String    @unique(map: "uq_user_name") @db.VarChar(15)
+  is_deleted Boolean   @default(false)
+  deleted_at DateTime? @db.DateTime(0)
+  created_at DateTime  @default(now()) @db.DateTime(0)
   post       post[]
-  userPhoto  userPhoto?
 
   @@map("user")
 }
@@ -60,46 +59,24 @@ model oneLine {
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model photo {
-  id           Int      @id @default(autoincrement())
-  post_id      Int
-  url          String   @db.VarChar(300)
-  is_picked    Boolean  @default(false)
-  upload_order Int
-  created_at   DateTime @default(now()) @db.DateTime(0)
-  post         post     @relation(fields: [post_id], references: [id], onDelete: Cascade, map: "fk_photo_post")
-
-  @@index([post_id], map: "idx_photo_post_id")
-  @@index([post_id, upload_order], map: "idx_photo_post_order")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model post {
   id                  Int                   @id @default(autoincrement())
   user_id             Int
-  year                Int
-  month               Int?
+  date                DateTime?             @db.DateTime(0)
   title               String?               @db.VarChar(100)
   content             String                @db.VarChar(500)
   is_deleted          Boolean               @default(false)
   deleted_at          DateTime?             @db.DateTime(0)
+  photo_url           String?               @db.Text
   created_at          DateTime              @default(now()) @db.DateTime(0)
   book_mark           Boolean               @default(false)
+  signal_noise        post_signal_noise     @default(signal)
   aiAnalysis          aiAnalysis?
   oneLine             oneLine[]
-  photo               photo[]
   user                User                  @relation(fields: [user_id], references: [id], map: "fk_post_user")
   userSelectedEmotion userSelectedEmotion[]
 
   @@index([user_id], map: "idx_post_user_id")
-  @@index([year, month], map: "idx_post_year_month")
-}
-
-model userPhoto {
-  id      Int    @id @default(autoincrement())
-  user_id Int    @unique(map: "uq_userPhoto_user")
-  url     String @db.VarChar(300)
-  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_userPhoto_user")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -120,4 +97,9 @@ model userSelectedEmotion {
 enum aiAnalysis_signal_noise_result {
   Signal
   Noise
+}
+
+enum post_signal_noise {
+  signal
+  noise
 }
