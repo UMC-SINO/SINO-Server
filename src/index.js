@@ -115,13 +115,13 @@ app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
 app.patch("/api/posts/:postId/bookmark", isLogin, asyncHandler(handleBookmarkToggle)); //
 app.delete("/api/posts/:postId", isLogin, asyncHandler(handlePostDelete)); //
-app.get("/api/posts/signal", isLogin, asyncHandler(handleSignalPosts)); //
-app.get("/api/posts/noise", isLogin, asyncHandler(handleNoisePosts)); //
+app.post("/api/posts/signal",  asyncHandler(handleSignalPosts)); //
+app.post("/api/posts/noise",  asyncHandler(handleNoisePosts)); //
 app.get("/api/posts/:postId", isLogin, asyncHandler(handlePost)); //
 app.post("/api/posts/:postId/oneline", isLogin, asyncHandler(handlePostOneline)); //
 app.patch("/api/posts/:postId/emotion", isLogin, asyncHandler(handlePostEmotion)); //
-app.get("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
-app.get("/api/report/:year", isLogin, asyncHandler(handleReport));
+app.post("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
+app.post("/api/report/:year", isLogin, asyncHandler(handleReport));
 
 // 회원가입
 
