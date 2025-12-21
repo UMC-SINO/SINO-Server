@@ -43,13 +43,14 @@ import {
 
 
 const app = express();
+app.set("trust proxy", 1);
 const port = process.env.PORT || 3000;
 
 // 미들웨어 설정
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: ["https://sino-front.vercel.app"],
+    origin: ["http://localhost:5173", "http://localhost:3000", "https://sino-front.vercel.app"],
     credentials: true,
   })
 );
@@ -91,15 +92,45 @@ app.use((req, res, next) => {
   next();
 });
 
-// 로그인 확인 미들웨어
-const isLogin = (req, res, next) => {
-  if (req.session && req.session.user) {
-    req.userName = req.session.user.name;
-    next();
-  } else {
-    throw new UserNotFoundError(null, " 로그인이 필요합니다.");
+// // 로그인 확인 미들웨어
+// const isLogin = (req, res, next) => {
+//   if (req.session && req.session.user) {
+//     req.userName = req.session.user.name;
+//     next();
+//   } else {
+//     throw new UserNotFoundError(null, " 로그인이 필요합니다.");
+//   }
+// };
+// 로그인 확인 미들웨어 (개선판)
+export const isLogin = (req, res, next) => {
+  const user = req.session?.user;
+
+  // (선택) 디버깅: 세션/쿠키가 실제로 오는지 확인하고 싶을 때만 켜기
+  // console.log("[AUTH]", req.method, req.originalUrl, {
+  //   hasCookie: Boolean(req.headers.cookie),
+  //   hasSession: Boolean(req.session),
+  //   hasUser: Boolean(user),
+  // });
+
+  if (user) {
+    // 이후 로직에서 일관되게 쓰라고 박아줌
+    req.user = user;
+    req.userName = user.name;
+    return next();
   }
+
+  // ✅ 여기서 throw 하지 말고 401로 명확히 응답 (네 공통응답 포맷에 맞춤)
+  return res.status(401).json({
+    resultType: "FAIL",
+    error: {
+      errorCode: "AUTH_401",
+      reason: "로그인이 필요합니다.",
+      data: null,
+    },
+    success: null,
+  });
 };
+
 
 // 비동기 에러 래퍼
 const asyncHandler = (fn) => (req, res, next) => {
