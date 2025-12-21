@@ -60,7 +60,7 @@ export const updatePostUploadMiddleware = upload.single("photo");
  *                   - 키 생략: 미변경
  *                   - ""(빈 문자열) 또는 "null": null로 저장(제목 제거)
  *                   - 일반 문자열: 해당 값으로 변경
- *                 example: "수정 제목"
+ *                 example: "수정할 제목을 입력해주세요."
  *               content:
  *                 type: string
  *                 description: |
@@ -68,7 +68,7 @@ export const updatePostUploadMiddleware = upload.single("photo");
  *                   - 키 생략: 미변경
  *                   - ""(빈 문자열): 빈 내용으로 변경(허용 여부는 정책에 따름)
  *                   - "null": 서비스에서 오류 처리(POST_UPDATE_001)
- *                 example: "수정 내용"
+ *                 example: "수정할 내용을 입력해주세요."
  *               date:
  *                 type: string
  *                 nullable: true
@@ -89,13 +89,6 @@ export const updatePostUploadMiddleware = upload.single("photo");
  *                   - 최대 5개 (중복은 제거됨)
  *                   - 허용 값: Boredom, Worried, Smile, Joyful, Happy, Angry, Shameful, Unrest, Afraid, Sad
  *                 default: '"[\"Happy\",\"Sad\"]"'
- *               removePhoto:
- *                 type: string
- *                 description: |
- *                   사진 삭제 플래그(선택)
- *                   - true/false 또는 1/0
- *                   - true(또는 1)이면 photo_url을 null로 설정합니다.
- *                 example: "true"
  *               photo:
  *                 type: string
  *                 format: binary
