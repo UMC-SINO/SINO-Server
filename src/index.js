@@ -40,11 +40,6 @@ import {
   updatePostUploadMiddleware,
   handleUpdatePost,
 } from "./controllers/postUpdate.controller.js";
-import { getPostById, getPostsById } from "./services/post.service.js";
-import https from "https";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
 
 const app = express();
@@ -217,30 +212,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-// // 서버 실행
-// app.listen(process.env.PORT || 3000, async () => {
-//   console.log(
-//     `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
-//   );
-//   await hugRepository.warmupModel();
-//   console.log(`Server is running on port ${process.env.PORT || 3000}`);
-// });
-
-// ===== HTTPS 설정 (self-signed) =====
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// src/index.js 기준: key.pem, cert.pem은 프로젝트 루트(../)에 있음
-const sslOptions = {
-  key: fs.readFileSync(path.join(__dirname, "../key.pem")),
-  cert: fs.readFileSync(path.join(__dirname, "../cert.pem")),
-};
-
-// ===== 서버 실행 (HTTPS) =====
-https.createServer(sslOptions, app).listen(port, async () => {
+// 서버 실행
+app.listen(process.env.PORT || 3000, async () => {
   console.log(
     `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
   );
   await hugRepository.warmupModel();
-  console.log(`HTTPS Server is running on port ${port}`);
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
