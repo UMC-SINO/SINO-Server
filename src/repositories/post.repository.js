@@ -73,7 +73,7 @@ export const getSignalPostByYear = async (userId, startDate, endDate) => {
     },
     take: 16,
     orderBy: {
-      created_at: "desc",
+      date: "desc",
     },
   });
 };
@@ -91,7 +91,7 @@ export const getNoisePostByYear = async (userId, startDate, endDate) => {
     },
     take: 16,
     orderBy: {
-      created_at: "desc",
+      date: "desc",
     },
   });
 };
@@ -109,7 +109,7 @@ export const getSignalPostByMonth = async (userId, startDate, endDate) => {
     },
     take: 16,
     orderBy: {
-      created_at: "desc",
+      date: "desc",
     },
   });
 };
@@ -127,7 +127,7 @@ export const getNoisePostByMonth = async (userId, startDate, endDate) => {
     },
     take: 16,
     orderBy: {
-      created_at: "desc",
+      date: "desc",
     },
   });
 };
@@ -142,7 +142,7 @@ export const getSignalPostByBookmark = async (userId) => {
       signal_noise: "signal",
     },
     take: 16,
-    orderBy: { created_at: "desc" },
+    orderBy: { date: "desc" },
   });
 };
 
@@ -155,7 +155,7 @@ export const getNoisePostByBookmark = async (userId) => {
       signal_noise: "noise",
     },
     take: 16,
-    orderBy: { created_at: "desc" },
+    orderBy: { date: "desc" },
   });
 };
 
