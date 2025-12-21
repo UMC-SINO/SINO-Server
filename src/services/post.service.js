@@ -107,7 +107,8 @@ export const getSignalPost = async (postRequest) => {
     const result = await getSignalPostByYear(userId, startDate, endDate);
     return result;
   } else if (filter === "month" && m != null && y != null) {
-    const year = parseInt(y, 10); const month = parseInt(m, 10);
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
     const result = await getSignalPostByMonth(userId, startDate, endDate);
@@ -142,7 +143,8 @@ export const getNoisePost = async (postRequest) => {
     const result = await getNoisePostByYear(userId, startDate, endDate);
     return result;
   } else if (filter === "month" && m != null && y != null) {
-    const year = parseInt(y, 10); const month = parseInt(m, 10);
+    const year = parseInt(y, 10);
+    const month = parseInt(m, 10);
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
     const result = await getNoisePostByMonth(userId, startDate, endDate);
@@ -168,7 +170,7 @@ export const getPostById = async (postId) => {
   if (!post) {
     throw new PostNotFoundError({ postId: postIdNum });
   }
-  
+
   return post;
 };
 
@@ -187,7 +189,7 @@ export const addOnelineToPost = async (postId, oneline) => {
   } catch (error) {
     if (error?.code === "P2025") {
       throw new PostNotFoundError({ postId: postIdNum });
-    } 
+    }
     throw new InternalServerError(
       { postId: postIdNum, detail: error?.message },
       "oneline 처리 중 오류가 발생했습니다."
@@ -203,17 +205,53 @@ export const updateEmotion = async (postId, emotion) => {
   const post = await findById(postIdNum);
   if (!post) {
     throw new PostNotFoundError({ postId: postIdNum });
-  } 
+  }
   try {
     const updatedPost = await updatingEmotion(postIdNum, emotion);
     return updatedPost;
   } catch (error) {
     if (error?.code === "P2025") {
       throw new PostNotFoundError({ postId: postIdNum });
-    } 
+    }
     throw new InternalServerError(
       { postId: postIdNum, detail: error?.message },
       "감정 처리 중 오류가 발생했습니다."
     );
+  }
+};
+
+export const getPostsById = async (userId, type, sort) => {
+  if (!userId) throw new InvalidUserIdError({ userId });
+
+  const user = await findByUserId(userId);
+  if (!user) throw new UserNotFoundError({ userId });
+
+  const isSignal = type === "signal" ? true : type === "noise" ? false : null;
+
+  console.log(isSignal);
+  const now = new Date();
+
+  if (sort === "year") {
+    const startDate = new Date(now.getFullYear(), 0, 1);
+    const endDate = new Date(now.getFullYear() + 1, 0, 1);
+    return isSignal
+      ? getSignalPostByYear(userId, startDate, endDate)
+      : getNoisePostByYear(userId, startDate, endDate);
+  } else if (sort === "month") {
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return isSignal
+      ? getSignalPostByMonth(userId, startDate, endDate)
+      : getNoisePostByMonth(userId, startDate, endDate);
+  } else if (sort === "bookmark") {
+    return isSignal
+      ? getSignalPostByBookmark(userId)
+      : getNoisePostByBookmark(userId);
+  } else {
+    const startDate = new Date(now.getFullYear(), 0, 1);
+    const endDate = new Date(now.getFullYear() + 1, 0, 1);
+    return isSignal
+      ? getSignalPostByYear(userId, startDate, endDate)
+      : getNoisePostByYear(userId, startDate, endDate);
   }
 };

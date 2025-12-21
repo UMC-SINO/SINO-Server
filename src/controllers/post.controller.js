@@ -6,6 +6,7 @@ import {
   updateEmotion,
   addOnelineToPost,
   getPostById,
+  getPostsById,
 } from "../services/post.service.js";
 import { bodyToPostRequest, bodyToPostEmotion } from "../dtos/post.dto.js";
 
@@ -288,6 +289,19 @@ export const handleSignalPosts = async (req, res, next) => {
   try {
     const postRequest = bodyToPostRequest(req.body);
     const result = await getSignalPost(postRequest);
+    return res.success({ result: result });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const handleGetPosts = async (req, res, next) => {
+  try {
+    const { type, sort } = req.query;
+    const sessionUser = req.session.user;
+    const userId = sessionUser.id;
+
+    const result = await getPostsById(userId, type, sort);
     return res.success({ result: result });
   } catch (error) {
     return next(error);

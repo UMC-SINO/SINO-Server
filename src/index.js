@@ -29,6 +29,7 @@ import {
   handlePost,
   handlePostOneline,
   handlePostEmotion,
+  handleGetPosts,
 } from "./controllers/post.controller.js";
 import { handleReport } from "./controllers/report.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
@@ -39,6 +40,7 @@ import {
   updatePostUploadMiddleware,
   handleUpdatePost,
 } from "./controllers/postUpdate.controller.js";
+import { getPostById, getPostsById } from "./services/post.service.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -132,6 +134,8 @@ app.patch(
 ); //
 app.post("/api/report/:year/:month", isLogin, asyncHandler(handleReport));
 app.post("/api/report/:year", isLogin, asyncHandler(handleReport));
+
+app.get("/api/posts", isLogin, asyncHandler(handleGetPosts));
 
 // 회원가입
 

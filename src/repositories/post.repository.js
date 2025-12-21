@@ -64,7 +64,7 @@ export const getSignalPostByYear = async (userId, startDate, endDate) => {
   return await prisma.post.findMany({
     where: {
       user_id: userId, // Service에서 이미 파싱된 userId
-      created_at: {
+      date: {
         gte: startDate, // Service에서 넘겨준 시작일
         lt: endDate, // Service에서 넘겨준 종료일
       },
@@ -82,7 +82,7 @@ export const getNoisePostByYear = async (userId, startDate, endDate) => {
   return await prisma.post.findMany({
     where: {
       user_id: userId, // Service에서 이미 파싱된 userId
-      created_at: {
+      date: {
         gte: startDate, // Service에서 넘겨준 시작일
         lt: endDate, // Service에서 넘겨준 종료일
       },
@@ -100,7 +100,7 @@ export const getSignalPostByMonth = async (userId, startDate, endDate) => {
   return await prisma.post.findMany({
     where: {
       user_id: userId, // Service에서 이미 파싱된 userId
-      created_at: {
+      date: {
         gte: startDate, // Service에서 넘겨준 시작일
         lt: endDate, // Service에서 넘겨준 종료일
       },
@@ -118,7 +118,7 @@ export const getNoisePostByMonth = async (userId, startDate, endDate) => {
   return await prisma.post.findMany({
     where: {
       user_id: userId, // Service에서 이미 파싱된 userId
-      created_at: {
+      date: {
         gte: startDate, // Service에서 넘겨준 시작일
         lt: endDate, // Service에서 넘겨준 종료일
       },
