@@ -55,12 +55,12 @@ const port = process.env.PORT || 3000;
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: ["https://sino-front.vercel.app"],
+    origin: ["http://localhost:5173"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "x-user-name"],
   })
 );
-// "http://localhost:5173", "http://localhost:3000",
+// "http://localhost:5173", "http://localhost:3000", "https://sino-front.vercel.app"
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -256,30 +256,30 @@ app.use((err, req, res, next) => {
   });
 });
 
-// // 서버 실행
-// app.listen(process.env.PORT || 3000, async () => {
-//   console.log(
-//     `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
-//   );
-//   await hugRepository.warmupModel();
-//   console.log(`Server is running on port ${process.env.PORT || 3000}`);
-// });
-
-// ===== HTTPS 설정 (self-signed) =====
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// src/index.js 기준: key.pem, cert.pem은 프로젝트 루트(../)에 있음
-const sslOptions = {
-  key: fs.readFileSync(path.join(__dirname, "../key.pem")),
-  cert: fs.readFileSync(path.join(__dirname, "../cert.pem")),
-};
-
-// ===== 서버 실행 (HTTPS) =====
-https.createServer(sslOptions, app).listen(port, async () => {
+// 서버 실행
+app.listen(process.env.PORT || 3000, async () => {
   console.log(
     `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
   );
   await hugRepository.warmupModel();
-  console.log(`HTTPS Server is running on port ${port}`);
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
 });
+
+// ===== HTTPS 설정 (self-signed) =====
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+// // src/index.js 기준: key.pem, cert.pem은 프로젝트 루트(../)에 있음
+// const sslOptions = {
+//   key: fs.readFileSync(path.join(__dirname, "../key.pem")),
+//   cert: fs.readFileSync(path.join(__dirname, "../cert.pem")),
+// };
+
+// // ===== 서버 실행 (HTTPS) =====
+// https.createServer(sslOptions, app).listen(port, async () => {
+//   console.log(
+//     `현재 토큰: ${process.env.GROQ_API_KEY ? "로드 성공" : "로드 실패"}`
+//   );
+//   await hugRepository.warmupModel();
+//   console.log(`HTTPS Server is running on port ${port}`);
+// });

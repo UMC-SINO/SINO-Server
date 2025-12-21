@@ -10,21 +10,26 @@ const options = {
     },
     servers: [
       {
+        url: "http://localhost:3000",
+        description: "로컬 서버",
+      },
+      {
         url: "http://52.91.220.116:3000",
+        description: "배포 서버",
       },
     ],
 
-    components: {
-      securitySchemes: {
-        cookieAuth: {
-          type: "apiKey",
-          in: "cookie",
-          name: "connect.sid",
-          description:
-            "세션 기반 인증. 먼저 /api/auth/login 성공 후 발급되는 connect.sid가 필요합니다.",
-        },
-      },
-    },
+    // components: {
+    //   securitySchemes: {
+    //     cookieAuth: {
+    //       type: "apiKey",
+    //       in: "cookie",
+    //       name: "connect.sid",
+    //       description:
+    //         "세션 기반 인증. 먼저 /api/auth/login 성공 후 발급되는 connect.sid가 필요합니다.",
+    //     },
+    //   },
+    // },
   },
   apis: ["./src/routes/*.js", "./src/**/*.js"],
 };
