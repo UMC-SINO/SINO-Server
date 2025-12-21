@@ -17,6 +17,7 @@ import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
 import { getMe } from "./controllers/me.controller.js";
 import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
+import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
 
 
 import {
@@ -121,9 +122,8 @@ app.post("/api/posts/noise",  asyncHandler(handleNoisePosts)); //
 app.get("/api/posts/:postId", isLogin, asyncHandler(handlePost)); //
 app.post("/api/posts/:postId/oneline", isLogin, asyncHandler(handlePostOneline)); //
 app.patch("/api/posts/:postId/emotion", isLogin, asyncHandler(handlePostEmotion)); //
-app.post("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
-app.post("/api/report/:year", isLogin, asyncHandler(handleReport));
-
+app.get("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
+app.get("/api/report/:year", isLogin, asyncHandler(handleReport));
 
 // 회원가입
 
