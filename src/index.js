@@ -29,6 +29,7 @@ import {
   handlePost,
   handlePostOneline,
   handlePostEmotion,
+  handleGetPosts,
 } from "./controllers/post.controller.js";
 import { handleReport } from "./controllers/report.controller.js";
 import { hugController } from "./controllers/hug.controller.js";
@@ -39,6 +40,7 @@ import {
   updatePostUploadMiddleware,
   handleUpdatePost,
 } from "./controllers/postUpdate.controller.js";
+import { getPostById, getPostsById } from "./services/post.service.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -47,7 +49,7 @@ const port = process.env.PORT || 3000;
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: true,
+    origin: ["http://localhost:5173", "http://localhost:3000"],
     credentials: true,
   })
 );
@@ -134,6 +136,8 @@ app.patch(
 app.get("/api/report/:year/:month", isLogin, asyncHandler(handleReport));
 app.get("/api/report/:year", isLogin, asyncHandler(handleReport));
 
+app.get("/api/posts", isLogin, asyncHandler(handleGetPosts));
+
 // 회원가입
 
 // photo 4개 올릴 때 사용했던 것것
@@ -163,7 +167,11 @@ app.get(
   isLogin,
   asyncHandler(hugController.getAnalysisResult)
 );
-app.get("/api/posts/:postId", isLogin, asyncHandler(handleGetPost));
+app.get(
+  "/api/posts/:postId/image-content",
+  isLogin,
+  asyncHandler(handleGetPost)
+);
 // 감정 목록 조회 (Issue #7)
 app.get("/api/v1/emotions", handleGetEmotions);
 

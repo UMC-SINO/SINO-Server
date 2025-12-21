@@ -3,7 +3,7 @@ import { getPostDetail } from "../services/image.service.js";
 import { InvalidPostIdError } from "../errors/post.error.js";
 /**
  * @swagger
- * /api/posts/{postId}:
+ * /api/posts/{postId}/image-content:
  *   get:
  *     summary: 게시글 상세 조회 (글 + 사진)
  *     tags:
@@ -94,7 +94,6 @@ import { InvalidPostIdError } from "../errors/post.error.js";
  *                       nullable: true
  *                       example: null
  */
-
 export const handleGetPost = async (req, res) => {
   const postId = Number(req.params.postId);
   if (isNaN(postId) || postId <= 0) {
