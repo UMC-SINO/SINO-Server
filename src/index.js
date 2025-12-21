@@ -16,9 +16,10 @@ import {
 import { handleGetEmotions } from "./controllers/emotion.controller.js";
 import authController from "./controllers/auth.controller.js";
 import { getMe } from "./controllers/me.controller.js";
-import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
-import { createPostUploadMiddleware, handleCreatePost } from "./controllers/postCreate.controller.js";
-
+import {
+  createPostUploadMiddleware,
+  handleCreatePost,
+} from "./controllers/postCreate.controller.js";
 
 import {
   handlePostDelete,
@@ -68,10 +69,6 @@ app.use(
   })
 );
 
-
-
-
-
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -115,14 +112,26 @@ app.get("/", (req, res) => {
 app.post("/api/v1/users/signup", asyncHandler(handleUserSignUp));
 // post 관련 라우트
 
-app.patch("/api/posts/:postId/bookmark", isLogin, asyncHandler(handleBookmarkToggle)); //
+app.patch(
+  "/api/posts/:postId/bookmark",
+  isLogin,
+  asyncHandler(handleBookmarkToggle)
+); //
 app.delete("/api/posts/:postId", isLogin, asyncHandler(handlePostDelete)); //
-app.post("/api/posts/signal",  asyncHandler(handleSignalPosts)); //
-app.post("/api/posts/noise",  asyncHandler(handleNoisePosts)); //
+app.get("/api/posts/signal", isLogin, asyncHandler(handleSignalPosts)); //
+app.get("/api/posts/noise", isLogin, asyncHandler(handleNoisePosts)); //
 app.get("/api/posts/:postId", isLogin, asyncHandler(handlePost)); //
-app.post("/api/posts/:postId/oneline", isLogin, asyncHandler(handlePostOneline)); //
-app.patch("/api/posts/:postId/emotion", isLogin, asyncHandler(handlePostEmotion)); //
-app.get("/api/report/:year/:month", isLogin, asyncHandler(handleReport)); 
+app.post(
+  "/api/posts/:postId/oneline",
+  isLogin,
+  asyncHandler(handlePostOneline)
+); //
+app.patch(
+  "/api/posts/:postId/emotion",
+  isLogin,
+  asyncHandler(handlePostEmotion)
+); //
+app.get("/api/report/:year/:month", isLogin, asyncHandler(handleReport));
 app.get("/api/report/:year", isLogin, asyncHandler(handleReport));
 
 // 회원가입
@@ -162,7 +171,12 @@ app.get("/api/v1/emotions", handleGetEmotions);
 app.get("/api/auth/me", isLogin, asyncHandler(getMe));
 
 // create post
-app.post("/api/posts/create", isLogin, createPostUploadMiddleware, asyncHandler(handleCreatePost));
+app.post(
+  "/api/posts/create",
+  isLogin,
+  createPostUploadMiddleware,
+  asyncHandler(handleCreatePost)
+);
 
 // update post
 app.patch(
@@ -172,9 +186,7 @@ app.patch(
   asyncHandler(handleUpdatePost)
 );
 
-
-
-// 
+//
 app.use((err, req, res, next) => {
   if (res.headersSent) return next(err);
 
@@ -189,7 +201,6 @@ app.use((err, req, res, next) => {
     },
     success: null,
   });
-  
 });
 
 // 서버 실행

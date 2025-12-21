@@ -199,149 +199,48 @@ export const handlePostDelete = async (req, res, next) => {
 /**
  * @swagger
  * /api/posts/signal:
- *   post:
+ *   get:
  *     summary: Signal 게시글 목록 조회
  *     tags:
  *       - Post
- *     description: 유저의 Signal 게시글을 연도별, 월별 또는 북마크 여부에 따라 필터링하여 조회합니다. (최대 16개)
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userId
- *               - filter
- *             properties:
- *               userId:
- *                 type: integer
- *                 example: 1
- *               filter:
- *                 type: string
- *                 enum:
- *                   - year
- *                   - month
- *                   - bookmark
- *                 example: year
- *               year:
- *                 type: string
- *                 description: "filter가 year 또는 month일 때 사용 (optional)"
- *                 example: "2025"
- *               month:
- *                 type: string
- *                 description: "filter가 month일 때 사용 (optional)"
- *                 example: ""
- *           example:
- *             userId: 1
- *             filter: "year"
- *             year: "2025"
- *             month: ""
- *     responses:
- *       200:
- *         description: 조회 성공
- *         content:
- *           application/json:
- *             example:
- *               resultType: "SUCCESS"
- *               error: null
- *               success:
- *                 result: []
- *       400:
- *         description: 잘못된 요청 (P001)
- *         content:
- *           application/json:
- *             example:
- *               resultType: "FAIL"
- *               error:
- *                 errorCode: "P001"
- *                 reason: "유효하지 않은 게시글 ID 입니다."
- *                 data:
- *                   received: "abc"
- *               success: null
- *       404:
- *         description: 유저를 찾을 수 없음 (U001 등)
- *         content:
- *           application/json:
- *             example:
- *               resultType: "FAIL"
- *               error:
- *                 errorCode: "U001"
- *                 reason: "사용자를 찾을 수 없습니다."
- *                 data:
- *                   userId: 123
- *               success: null
- *       500:
- *         description: 서버 내부 에러 (P003)
- *         content:
- *           application/json:
- *             example:
- *               resultType: "FAIL"
- *               error:
- *                 errorCode: "P003"
- *                 reason: "서버 에러가 발생하였습니다."
- *                 data:
- *                   detail: "Invalid filter type"
- *               success: null
- */
-export const handleSignalPosts = async (req, res, next) => {
-  try {
-    const postRequest = bodyToPostRequest(req.body);
-    const result = await getSignalPost(postRequest);
-    return res.success({ result: result });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-
-/**
- * @swagger
- * /api/posts/noise:
- *   post:
- *     summary: Noise 게시글 목록 조회
- *     tags:
- *       - Post
  *     description: |
- *       유저의 Noise 게시글을 연도별, 월별 또는 북마크 여부에 따라 필터링하여 조회합니다. (최대 16개)
- *       - filter=year: 해당 연도의 데이터를 가져옵니다. (year 파라미터 권장)
- *       - filter=month: 해당 연도/월의 데이터를 가져옵니다. (year, month 파라미터 권장)
- *       - filter=bookmark: 북마크된 Noise 데이터를 가져옵니다.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - userId
- *               - filter
- *             properties:
- *               userId:
- *                 type: integer
- *                 example: 1
- *                 description: 사용자 ID
- *               filter:
- *                 type: string
- *                 enum:
- *                   - year
- *                   - month
- *                   - bookmark
- *                 example: year
- *                 description: 필터 타입
- *               year:
- *                 type: string
- *                 description: "filter가 year 또는 month일 때 사용 (optional)"
- *                 example: "2025"
- *               month:
- *                 type: string
- *                 description: "filter가 month일 때 사용 (optional)"
- *                 example: ""
- *           example:
- *             userId: 1
- *             filter: "year"
- *             year: "2025"
- *             month: ""
+ *       유저의 Signal 게시글을 연도별, 월별 또는 북마크 여부에 따라 필터링하여 조회합니다. (최대 16개)
+ *       - filter=year: 해당 연도의 데이터를 가져옵니다. (year 권장)
+ *       - filter=month: 해당 연도/월의 데이터를 가져옵니다. (year, month 권장)
+ *       - filter=bookmark: 북마크된 Signal 데이터를 가져옵니다. (year/month 무시)
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: 사용자 ID
+ *       - in: query
+ *         name: filter
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - year
+ *             - month
+ *             - bookmark
+ *           example: year
+ *         description: 필터 타입 (year | month | bookmark)
+ *       - in: query
+ *         name: year
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "2025"
+ *         description: 필터링할 연도 (filter가 year 또는 month일 때 사용, optional)
+ *       - in: query
+ *         name: month
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: ""
+ *         description: 필터링할 월 (filter가 month일 때 사용, optional)
  *     responses:
  *       200:
  *         description: 조회 성공
@@ -353,32 +252,40 @@ export const handleSignalPosts = async (req, res, next) => {
  *               success:
  *                 result:
  *                   - id: 1
+ *                     user_id: 1
+ *                     year: 2025
+ *                     month: 12
+ *                     book_mark: false
+ *                     title: "오늘의 기록"
  *                     content: "내용..."
- *                     signal_noise: "noise"
- *                     created_at: "2025-12-20T..."
+ *                     heart: 0
+ *                     signal_noise: "signal"
+ *                     is_deleted: false
+ *                     deleted_at: null
+ *                     created_at: "2025-12-20T00:00:00.000Z"
  *       400:
- *         description: 요청 파라미터 오류 (P001)
+ *         description: 요청 파라미터 오류 (P001 등)
  *         content:
  *           application/json:
  *             example:
  *               resultType: "FAIL"
  *               error:
  *                 errorCode: "P001"
- *                 reason: "유효하지 않은 게시글 ID 입니다."
+ *                 reason: "유효하지 않은 유저 ID 입니다."
  *                 data:
- *                   received: "abc"
+ *                   userId: "abc"
  *               success: null
  *       404:
- *         description: 사용자를 찾을 수 없음 (U001)
+ *         description: 사용자를 찾을 수 없음 (P002)
  *         content:
  *           application/json:
  *             example:
  *               resultType: "FAIL"
  *               error:
- *                 errorCode: "U001"
- *                 reason: "사용자를 찾을 수 없습니다."
+ *                 errorCode: "P002"
+ *                 reason: "일치하는 유저가 없습니다."
  *                 data:
- *                   userId: 123
+ *                   userId: 999
  *               success: null
  *       500:
  *         description: 서버 내부 에러 (P003)
@@ -395,6 +302,135 @@ export const handleSignalPosts = async (req, res, next) => {
  *                     data:
  *                       userId: 1
  *                       detail: "Invalid filter type"
+ *                   success: null
+ *               serverError:
+ *                 summary: 기타 서버 에러
+ *                 value:
+ *                   resultType: "FAIL"
+ *                   error:
+ *                     errorCode: "P003"
+ *                     reason: "서버 에러가 발생하였습니다."
+ *                     data: null
+ *                   success: null
+ */
+export const handleSignalPosts = async (req, res, next) => {
+  try {
+    const postRequest = bodyToPostRequest(req.query);
+    const result = await getSignalPost(postRequest);
+    return res.success({ result: result });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+
+/**
+ * @swagger
+ * /api/posts/noise:
+ *   get:
+ *     summary: Noise 게시글 목록 조회
+ *     tags:
+ *       - Post
+ *     description: |
+ *       유저의 Noise 게시글을 연도별, 월별 또는 북마크 여부에 따라 필터링하여 조회합니다. (최대 16개)
+ *       - filter=year: 해당 연도의 데이터를 가져옵니다. (year 권장)
+ *       - filter=month: 해당 연도/월의 데이터를 가져옵니다. (year, month 권장)
+ *       - filter=bookmark: 북마크된 Noise 데이터를 가져옵니다. (year/month 무시)
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: 사용자 ID
+ *       - in: query
+ *         name: filter
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - year
+ *             - month
+ *             - bookmark
+ *           example: year
+ *         description: 필터 타입 (year | month | bookmark)
+ *       - in: query
+ *         name: year
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "2025"
+ *         description: 필터링할 연도 (filter가 year 또는 month일 때 사용, optional)
+ *       - in: query
+ *         name: month
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: ""
+ *         description: 필터링할 월 (filter가 month일 때 사용, optional)
+ *     responses:
+ *       200:
+ *         description: 조회 성공
+ *         content:
+ *           application/json:
+ *             example:
+ *               resultType: "SUCCESS"
+ *               error: null
+ *               success:
+ *                 result:
+ *                   - id: 2
+ *                     user_id: 1
+ *                     year: 2025
+ *                     month: 12
+ *                     book_mark: false
+ *                     title: "불안했던 날"
+ *                     content: "내용..."
+ *                     heart: 0
+ *                     signal_noise: "noise"
+ *                     is_deleted: false
+ *                     deleted_at: null
+ *                     created_at: "2025-12-20T00:00:00.000Z"
+ *       400:
+ *         description: 요청 파라미터 오류 (P001 등)
+ *         content:
+ *           application/json:
+ *             example:
+ *               resultType: "FAIL"
+ *               error:
+ *                 errorCode: "P001"
+ *                 reason: "유효하지 않은 유저 ID 입니다."
+ *                 data:
+ *                   userId: "abc"
+ *               success: null
+ *       404:
+ *         description: 사용자를 찾을 수 없음 (P002)
+ *         content:
+ *           application/json:
+ *             example:
+ *               resultType: "FAIL"
+ *               error:
+ *                 errorCode: "P002"
+ *                 reason: "일치하는 유저가 없습니다."
+ *                 data:
+ *                   userId: 999
+ *               success: null
+ *       500:
+ *         description: 서버 내부 에러 (P003)
+ *         content:
+ *           application/json:
+ *             examples:
+ *               invalidFilter:
+ *                 summary: 유효하지 않은 필터 타입
+ *                 value:
+ *                   resultType: "FAIL"
+ *                   error:
+ *                     errorCode: "P003"
+ *                     reason: "유효하지 않은 필터 타입입니다."
+ *                     data:
+ *                       userId: 1
+ *                       detail: "Invalid filter type"
+ *                   success: null
  *               dbError:
  *                 summary: 기타 서버/DB 에러
  *                 value:
@@ -404,10 +440,11 @@ export const handleSignalPosts = async (req, res, next) => {
  *                     reason: "서버 에러가 발생하였습니다."
  *                     data:
  *                       detail: "Database connection timeout"
+ *                   success: null
  */
 export const handleNoisePosts = async (req, res, next) => {
   try {
-    const postRequest = bodyToPostRequest(req.body);
+    const postRequest = bodyToPostRequest(req.query);
     const result = await getNoisePost(postRequest);
     return res.success({ result: result });
   } catch (error) {
