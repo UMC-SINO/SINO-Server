@@ -49,20 +49,20 @@ export const createPostUploadMiddleware = upload.single("photo");
  *                 type: string
  *                 nullable: true
  *                 description: 게시글 제목 (선택)
- *                 example: "오늘의 일기"
+ *                 example: "제목"
  *               content:
  *                 type: string
  *                 description: 게시글 내용 (필수)
- *                 example: "오늘은 정말 기분이 좋았다."
+ *                 example: "최대 500자 작성이 가능합니다."
  *               emotions:
  *                 type: string
  *                 description: |
  *                   감정 배열(JSON 문자열) (필수)
- *                   예: ["Happy","Worried"]
+ *                   예: "[\\"Happy\\",\\"Worried\\"]"
  *                   1~5개여야 합니다.
  *                   중복 불가
  *                   허용 값: Boredom, Worried, Smile, Joyful, Happy, Angry, Shameful, Unrest, Afraid, Sad
- *                 example: "[\"Happy\",\"Worried\"]"
+ *                 default: '"[\"Happy\",\"Sad\"]"'
  *               photo:
  *                 type: string
  *                 format: binary
