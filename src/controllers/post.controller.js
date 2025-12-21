@@ -725,27 +725,33 @@ export const handlePostOneline = async (req, res, next) => {
  *                   emotion_name: "Joyful"
  *                   modified: true
  *       400:
- *         description: 잘못된 요청 (P001 또는 입력값 오류)
+ *         description: 잘못된 요청 (유효하지 않은 postId 형식)
  *         content:
  *           application/json:
- *             examples:
- *               invalidId:
- *                 summary: 유효하지 않은 postId (P001)
- *                 value:
- *                   resultType: "FAIL"
- *                   error:
- *                     errorCode: "P001"
- *                     reason: "유효하지 않은 게시글 ID 입니다."
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 resultType:
+ *                   type: string
+ *                   example: FAIL
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     errorCode:
+ *                       type: string
+ *                       example: P001
+ *                     reason:
+ *                       type: string
+ *                       example: "유효하지 않은 게시글 ID 입니다."
  *                     data:
- *                       received: "abc"
- *               invalidInput:
- *                 summary: 감정 배열 형식/개수 오류
- *                 value:
- *                   resultType: "FAIL"
- *                   error:
- *                     errorCode: "COMMON_001"
- *                     reason: "emotion must contain less than 5 items"
- *                     data: null
+ *                       type: object
+ *                       properties:
+ *                         received:
+ *                           type: string
+ *                           example: "abc"
+ *                 success:
+ *                   nullable: true
+ *                   example: null
  *       404:
  *         description: 게시글 없음 (P002)
  *         content:
@@ -757,6 +763,7 @@ export const handlePostOneline = async (req, res, next) => {
  *                 reason: "일치하는 게시글이 없습니다."
  *                 data:
  *                   postId: 999
+ *               success: null
  *       500:
  *         description: 서버 에러 (P003)
  *         content:
@@ -769,6 +776,7 @@ export const handlePostOneline = async (req, res, next) => {
  *                 data:
  *                   postId: 1
  *                   detail: "Transaction failed"
+ *               success: null
  */
 export const handlePostEmotion = async (req, res, next) => {
   try {
