@@ -9,7 +9,7 @@ import {
 // 메모리에 파일 올려서 바로 S3로 업로드(디스크 저장 X)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, 
+  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 // photo: 0~1개
@@ -33,9 +33,6 @@ export const updatePostUploadMiddleware = upload.single("photo");
  *       - removePhoto=true(또는 1)이면 기존 사진 제거(+ 기존 S3 파일 삭제 best-effort)
  *       - ⚠️ removePhoto와 photo가 동시에 오면, 현재 서비스는 removePhoto를 우선 처리합니다.
  *
- *     security:
- *       - cookieAuth: []
- *
  *     parameters:
  *       - in: path
  *         name: postId
@@ -44,6 +41,13 @@ export const updatePostUploadMiddleware = upload.single("photo");
  *           type: integer
  *           example: 3
  *         description: 수정할 게시글 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *
  *     requestBody:
  *       required: false
@@ -234,10 +238,6 @@ export const updatePostUploadMiddleware = upload.single("photo");
  *                   success: null
  */
 
-
-
-
-
 /**
  * PATCH /api/posts/:postId
  * multipart/form-data
@@ -246,17 +246,18 @@ export const updatePostUploadMiddleware = upload.single("photo");
  * - date?: string | null (DATETIME)
  * - emotions?: string  (예: ["Happy","Worried"] JSON 문자열) | undefined(미변경)
  * - removePhoto?: "true" | "false" | undefined (photo_url 제거 플래그)
- * - photo?: File 
+ * - photo?: File
  */
 export const handleUpdatePost = async (req, res) => {
   const postId = Number(req.params.postId);
   if (!Number.isInteger(postId) || postId <= 0) {
-    throw new PostUpdateValidationError({ postId }, "postId가 올바르지 않습니다.");
+    throw new PostUpdateValidationError(
+      { postId },
+      "postId가 올바르지 않습니다."
+    );
   }
 
-
-  const userId = req.session?.user?.id;
-    if (!userId) throw new UserNotFoundError(null, "로그인이 필요합니다.");
+  const userId = req.user.id;
 
   // multipart에서 값이 "존재"하는지 여부가 핵심
   // - key가 아예 없으면 undefined (미변경)
@@ -265,8 +266,8 @@ export const handleUpdatePost = async (req, res) => {
   const file = req.file ?? null;
 
   const parsed = {
-    title: title === undefined ? undefined : (title === "null" ? null : title),
-    date: date === undefined ? undefined : (date === "null" ? null : date),
+    title: title === undefined ? undefined : title === "null" ? null : title,
+    date: date === undefined ? undefined : date === "null" ? null : date,
     content: content === undefined ? undefined : content, // 빈문자 허용
     emotions: undefined,
     removePhoto: removePhoto === "true",
@@ -283,16 +284,16 @@ export const handleUpdatePost = async (req, res) => {
     } catch (e) {
       throw new PostUpdateValidationError(
         { emotions },
-        "emotions는 JSON 배열 문자열이어야 합니다. 예: [\"Happy\",\"Sad\"]"
+        'emotions는 JSON 배열 문자열이어야 합니다. 예: ["Happy","Sad"]'
       );
     }
   }
 
   const result = await updatePostWithOptionalPhotoAndEmotions({
     postId,
-    sessionUser: req.session?.user,
-    body: req.body,               
-    file,                         
+    sessionUser: req.user,
+    body: req.body,
+    file,
   });
 
   return res.success(result);

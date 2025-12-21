@@ -1,6 +1,10 @@
 // src/services/postUpdate.service.js
 import { prisma } from "../db.config.js";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { buildS3Key } from "../utils/s3key.js";
 import {
   PostForbiddenError,
@@ -28,7 +32,8 @@ const BUCKET = process.env.S3_BUCKET;
 
 const s3 = new S3Client({ region: REGION });
 
-const toPublicUrl = (key) => `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
+const toPublicUrl = (key) =>
+  `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
 
 const extractKeyFromPublicUrl = (url) => {
   if (!url) return null;
@@ -44,7 +49,10 @@ const deleteS3ObjectBestEffort = async (key) => {
   try {
     await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
   } catch (e) {
-    console.warn("[S3] delete object failed (ignored):", { key, message: e?.message });
+    console.warn("[S3] delete object failed (ignored):", {
+      key,
+      message: e?.message,
+    });
   }
 };
 
@@ -67,7 +75,6 @@ const uploadToS3 = async ({ key, buffer, contentType }) => {
   }
 };
 
-
 // - undefined(키 없음) => 업데이트 안 함
 // - "" 또는 "null" => null로 저장
 // - 그 외 문자열 => 그대로 사용
@@ -86,7 +93,10 @@ const parseDateOrNull = (v) => {
   if (normalized === null) return null; // set null
   const d = new Date(normalized);
   if (Number.isNaN(d.getTime())) {
-    throw new PostUpdateValidationError({ date: v }, "date 형식이 올바르지 않습니다.");
+    throw new PostUpdateValidationError(
+      { date: v },
+      "date 형식이 올바르지 않습니다."
+    );
   }
   return d;
 };
@@ -101,16 +111,25 @@ const parseEmotions = (v) => {
   try {
     arr = JSON.parse(normalized);
   } catch {
-    throw new PostUpdateValidationError({ emotions: v }, "emotions는 JSON 문자열 배열이어야 합니다.");
+    throw new PostUpdateValidationError(
+      { emotions: v },
+      "emotions는 JSON 문자열 배열이어야 합니다."
+    );
   }
 
   if (!Array.isArray(arr)) {
-    throw new PostUpdateValidationError({ emotions: v }, "emotions는 배열이어야 합니다.");
+    throw new PostUpdateValidationError(
+      { emotions: v },
+      "emotions는 배열이어야 합니다."
+    );
   }
 
   // 길이 제한
   if (arr.length > 5) {
-    throw new PostUpdateValidationError({ emotionsCount: arr.length }, "emotions는 최대 5개까지 가능합니다.");
+    throw new PostUpdateValidationError(
+      { emotionsCount: arr.length },
+      "emotions는 최대 5개까지 가능합니다."
+    );
   }
 
   for (const e of arr) {
@@ -132,18 +151,11 @@ export const updatePostWithOptionalPhotoAndEmotions = async ({
   body,
   file, // multer single file
 }) => {
-  // 1) 로그인 유저 식별 
-  const sessionUserId = sessionUser?.id;
-  const sessionUserName = sessionUser?.name;
+  // 1) 로그인 유저 식별
+  let userId = sessionUser?.id;
 
-  let userId = sessionUserId;
   if (!userId) {
-    if (!sessionUserName) {
-      throw new PostUpdateValidationError(null, "세션 사용자 정보가 없습니다.");
-    }
-    const u = await prisma.user.findUnique({ where: { name: sessionUserName }, select: { id: true } });
-    if (!u) throw new PostUpdateValidationError({ name: sessionUserName }, "세션 사용자 정보를 찾을 수 없습니다.");
-    userId = u.id;
+    throw new PostUpdateValidationError(null, "인증된 사용자 정보가 없습니다.");
   }
 
   // 2) 게시글 존재/권한 확인
@@ -173,7 +185,10 @@ export const updatePostWithOptionalPhotoAndEmotions = async ({
 
   if (content !== undefined) {
     if (content === null) {
-      throw new PostUpdateValidationError({ content }, "content는 null로 설정할 수 없습니다.");
+      throw new PostUpdateValidationError(
+        { content },
+        "content는 null로 설정할 수 없습니다."
+      );
     }
     updateData.content = content;
   }
@@ -181,7 +196,7 @@ export const updatePostWithOptionalPhotoAndEmotions = async ({
   // 5) 사진 처리
   // - file 있으면 업로드 후 photo_url 교체
   // - removePhoto=true면 photo_url null
-  // - 둘 다 오면: file 우선(or 정책 선택) 
+  // - 둘 다 오면: file 우선(or 정책 선택)
   let newPhotoUrl;
   let uploadedKey;
 

@@ -30,6 +30,13 @@ import {
  *           type: integer
  *           example: 1
  *         description: 사용자 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     responses:
  *       200:
  *         description: 리포트 생성 성공
@@ -164,6 +171,13 @@ import {
  *           type: integer
  *           example: 1
  *         description: 사용자 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     responses:
  *       200:
  *         description: 리포트 생성 성공
@@ -268,7 +282,7 @@ export const handleReport = async (req, res, next) => {
     const year = Number(req.params.year);
     const month = Number(req.params.month);
     const userId = req.query.userId;
-    if (req.params.month == undefined ) {
+    if (req.params.month == undefined) {
       const result = await generateYearlyReport(userId, year);
       return res.success(result);
     } else {

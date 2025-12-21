@@ -25,11 +25,17 @@ export const hugController = {
    *       - in: path
    *         name: postId
    *         required: true
+   *         schema:
+   *           type: integer
+   *         description: 조회할 게시글 ID
+   *         example: 1
    *       - in: header
    *         name: x-user-name
    *         required: true
    *         schema:
    *           type: string
+   *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+   *         example: "newuser2"
    *     responses:
    *       200:
    *         description: 분석 성공
@@ -112,11 +118,17 @@ export const hugController = {
    *       - in: path
    *         name: postId
    *         required: true
+   *         schema:
+   *           type: integer
+   *         description: 조회할 게시글 ID
+   *         example: 1
    *       - in: header
    *         name: x-user-name
    *         required: true
    *         schema:
    *           type: string
+   *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+   *         example: "newuser2"
    *     responses:
    *       200:
    *         description: 조회 성공

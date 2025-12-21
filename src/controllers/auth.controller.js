@@ -4,7 +4,6 @@ import {
   CheckNicknameRequestDto,
   LoginRequestDto,
   SignupRequestDto,
-  SessionUserDto,
 } from "../dtos/auth.dto.js";
 
 /**

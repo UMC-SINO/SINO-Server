@@ -24,9 +24,14 @@ export const createPostUploadMiddleware = upload.single("photo");
  *         1) post 생성하여 postId 확보
  *         2) photo가 있으면 S3 업로드 후 post.photo_url 업데이트
  *         3) emotion 테이블에 감정 1~5개 insert
- *
- *     security:
- *       - cookieAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *
  *     requestBody:
  *       required: true
@@ -227,18 +232,8 @@ export const createPostUploadMiddleware = upload.single("photo");
  *               success: null
  */
 
-
-
 export const handleCreatePost = async (req, res) => {
-
-  const userId = req.session?.user?.id;
-  if (!userId) {
-    return res.status(401).error({
-      errorCode: "AUTH_001",
-      reason: "로그인이 필요합니다.",
-      data: null,
-    });
-  }
+  const userId = req.user.id;
 
   const { date, title, content, emotions } = req.body ?? {};
 

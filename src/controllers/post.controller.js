@@ -30,8 +30,15 @@ import { bodyToPostRequest, bodyToPostEmotion } from "../dtos/post.dto.js";
  *         required: true
  *         schema:
  *           type: integer
- *           example: 1
  *         description: 북마크를 토글할 게시글 ID
+ *         example: 1
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     responses:
  *       200:
  *         description: 북마크 토글 성공
@@ -113,6 +120,13 @@ export const handleBookmarkToggle = async (req, res, next) => {
  *           type: integer
  *           example: 1
  *         description: 삭제할 게시글 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     responses:
  *       200:
  *         description: 게시글 삭제 성공
@@ -217,6 +231,13 @@ export const handlePostDelete = async (req, res, next) => {
  *           type: integer
  *           example: 1
  *         description: 사용자 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *       - in: query
  *         name: filter
  *         required: true
@@ -327,8 +348,7 @@ export const handleSignalPosts = async (req, res, next) => {
 export const handleGetPosts = async (req, res, next) => {
   try {
     const { type, sort } = req.query;
-    const sessionUser = req.session.user;
-    const userId = sessionUser.id;
+    const userId = req.user.id;
 
     const result = await getPostsById(userId, type, sort);
     return res.success({ result: result });
@@ -357,6 +377,13 @@ export const handleGetPosts = async (req, res, next) => {
  *           type: integer
  *           example: 1
  *         description: 사용자 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *       - in: query
  *         name: filter
  *         required: true
@@ -483,6 +510,13 @@ export const handleNoisePosts = async (req, res, next) => {
  *           type: integer
  *         description: 조회할 게시글 ID
  *         example: 1
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     responses:
  *       200:
  *         description: 조회 성공
@@ -584,6 +618,13 @@ export const handlePost = async (req, res, next) => {
  *         schema:
  *           type: integer
  *         description: 한 줄 정리를 추가할 게시글 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     requestBody:
  *       required: true
  *       content:
@@ -678,6 +719,13 @@ export const handlePostOneline = async (req, res, next) => {
  *         schema:
  *           type: integer
  *         description: 감정을 수정할 게시글 ID
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     requestBody:
  *       required: true
  *       content:

@@ -5,23 +5,19 @@ import { MeAuthRequiredError } from "../errors/me.error.js";
  * @swagger
  * /api/auth/me:
  *   get:
- *     tags: [Auth]
- *     summary: 내 정보 조회 (세션 로그인 필요)
+ *     tags:
+ *       - Auth
+ *     summary: 내 정보 조회 (헤더 로그인 필요)
  *     description: |
- *       세션 기반 인증으로 현재 로그인된 사용자의 이름을 반환합니다.
- *
- *       - 로그인 성공 시 서버가 `connect.sid`를 발급합니다.
- *       - 이후 요청에 해당 세션이이 포함되어야 합니다.
- *       - Request Body는 없습니다.
- *
- *       ⚠️ Swagger UI에서 401이 뜨는 흔한 이유:
- *       - Swagger UI는 쿠키를 자동으로 실어 보내지 않을 수 있습니다.
- *       - 같은 브라우저 세션에서 먼저 /api/auth/login을 호출해 세션이이 저장되어야 합니다.
- *       - 또는 브라우저 개발자도구에서 connect.sid가 저장됐는지 확인하세요.
- *
- *     security:
- *       - cookieAuth: []
- *
+ *       헤더 기반 인증으로 현재 로그인된 사용자의 이름을 반환합니다.
+ *     parameters:
+ *       - in: header
+ *         name: x-user-name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: 로그인한 사용자의 이름 (DB의 name 필드와 일치해야 함)
+ *         example: "newuser2"
  *     responses:
  *       200:
  *         description: 성공
@@ -81,10 +77,10 @@ import { MeAuthRequiredError } from "../errors/me.error.js";
  */
 export const getMe = async (req, res, next) => {
   try {
-    if (!req.session?.user) throw new MeAuthRequiredError();
-    return res.success({ name: req.session.user.name });
+    return res.success({
+      name: req.userName,
+    });
   } catch (err) {
     return next(err);
   }
 };
-
