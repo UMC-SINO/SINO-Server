@@ -71,6 +71,9 @@ import { InvalidPostIdError } from "../errors/post.error.js";
  *                         received:
  *                           type: string
  *                           example: "abc"
+ *                 success:
+ *                   nullable: true
+ *                   example: null
  *       404:
  *         description: 게시글을 찾을 수 없음
  *         content:
@@ -93,7 +96,11 @@ import { InvalidPostIdError } from "../errors/post.error.js";
  *                     data:
  *                       nullable: true
  *                       example: null
+ *                 success:
+ *                   nullable: true
+ *                   example: null
  */
+
 export const handleGetPost = async (req, res) => {
   const postId = Number(req.params.postId);
   if (isNaN(postId) || postId <= 0) {
