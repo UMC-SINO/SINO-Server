@@ -12,6 +12,9 @@ const options = {
       {
         url: "http://52.91.220.116:3000",
       },
+      {
+        url: "https://sino-server.duckdns.org",
+      }
     ],
 
     components: {
