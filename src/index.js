@@ -5,7 +5,7 @@ dotenv.config();
 import express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
-import session from "express-session";
+// import session from "express-session";
 import { specs } from "../swagger.config.js";
 import { handleUserSignUp } from "./controllers/user.controller.js";
 import {
@@ -41,7 +41,7 @@ import {
   handleUpdatePost,
 } from "./controllers/postUpdate.controller.js";
 import { getPostById, getPostsById } from "./services/post.service.js";
-
+import userRepository from "./repositories/auth.repository.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -51,25 +51,26 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:3000"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization", "x-user-name"],
   })
 );
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      maxAge: 1800000,
-      sameSite: "lax",
-      secure: false,
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       httpOnly: true,
+//       maxAge: 1800000,
+//       sameSite: "lax",
+//       secure: false,
+//     },
+//   })
+// );
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -91,12 +92,36 @@ app.use((req, res, next) => {
 });
 
 // 로그인 확인 미들웨어
-const isLogin = (req, res, next) => {
-  if (req.session && req.session.user) {
-    req.userName = req.session.user.name;
-    next();
-  } else {
-    throw new UserNotFoundError(null, " 로그인이 필요합니다.");
+const isLogin = async (req, res, next) => {
+  const userName = req.headers["x-user-name"];
+
+  // 1. 헤더가 없는 경우
+  if (!userName) {
+    return res.status(401).json({
+      resultType: "FAIL",
+      error: {
+        errorCode: "U003",
+        reason: "헤더에 x-user-name이 누락되었습니다.",
+        data: null,
+      },
+      success: null,
+    });
+  }
+
+  try {
+    // 2. DB에서 유저 찾기
+    const user = await userRepository.findByName(userName);
+
+    if (user) {
+      req.user = user;
+      req.userName = user.name;
+      next();
+    } else {
+      // 3. DB에 없는 이름인 경우
+      throw new UserNotFoundError(null, "존재하지 않는 사용자입니다.");
+    }
+  } catch (error) {
+    next(error);
   }
 };
 

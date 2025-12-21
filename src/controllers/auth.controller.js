@@ -65,7 +65,7 @@ class AuthController {
    * @swagger
    * /api/auth/login:
    *   post:
-   *     summary: 이름으로 로그인 (세션 기반)
+   *     summary: 이름으로 로그인 (헤더 기반)
    *     tags:
    *       - Auth
    *     requestBody:
@@ -95,8 +95,6 @@ class AuthController {
   login = async (req, res) => {
     const loginRequest = new LoginRequestDto(req.body);
     const userDto = await authService.login(loginRequest.name);
-
-    req.session.user = new SessionUserDto(userDto);
 
     return res.success(userDto);
   };

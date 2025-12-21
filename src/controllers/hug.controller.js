@@ -25,8 +25,11 @@ export const hugController = {
    *       - in: path
    *         name: postId
    *         required: true
+   *       - in: header
+   *         name: x-user-name
+   *         required: true
    *         schema:
-   *           type: integer
+   *           type: string
    *     responses:
    *       200:
    *         description: 분석 성공
@@ -109,8 +112,11 @@ export const hugController = {
    *       - in: path
    *         name: postId
    *         required: true
+   *       - in: header
+   *         name: x-user-name
+   *         required: true
    *         schema:
-   *           type: integer
+   *           type: string
    *     responses:
    *       200:
    *         description: 조회 성공
