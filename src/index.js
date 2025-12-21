@@ -55,7 +55,7 @@ const port = process.env.PORT || 3000;
 app.use(morgan("dev"));
 app.use(
   cors({
-    origin: ["https://sino-front.vercel.app/"],
+    origin: ["https://sino-front.vercel.app"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "x-user-name"],
   })
@@ -78,19 +78,19 @@ app.use(express.urlencoded({ extended: false }));
 //     },
 //   })
 // );
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      maxAge: 1800000,
-      sameSite: "none",
-      secure: true,
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       httpOnly: true,
+//       maxAge: 1800000,
+//       sameSite: "none",
+//       secure: true,
+//     },
+//   })
+// );
 
 // Swagger 연결
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
