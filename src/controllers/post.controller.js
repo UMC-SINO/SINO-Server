@@ -294,7 +294,6 @@ export const handleSignalPosts = async (req, res, next) => {
   }
 };
 
-
 /**
  * @swagger
  * /api/posts/noise:
@@ -414,8 +413,98 @@ export const handleNoisePosts = async (req, res, next) => {
     return next(error);
   }
 };
-
-
+/**
+ * @swagger
+ * /api/posts/{postId}:
+ *   get:
+ *     summary: 게시글 통합 상세 조회 (글 + AI 분석 + 감정)
+ *     tags:
+ *       - Post
+ *     description: |
+ *       특정 postId에 해당하는 게시글의 모든 정보(본문, 이미지, AI 감정 분석 결과, 유저 선택 감정 등)를 조회합니다.
+ *       - **aiAnalysis**: AI가 분석한 Signal/Noise 결과 및 상위 감정 리스트
+ *       - **emotion**: 게시글에 연결된 전체 감정 태그 리스트
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 조회할 게시글 ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: 조회 성공
+ *         content:
+ *           application/json:
+ *             example:
+ *               resultType: "SUCCESS"
+ *               error: null
+ *               success:
+ *                 id: 1
+ *                 user_id: 1
+ *                 date: "2025-12-21T00:00:00.000Z"
+ *                 title: "오늘의 기록"
+ *                 content: "게시글 본문 내용입니다."
+ *                 photo_url: "https://sino-bucket.s3.amazonaws.com/posts/1/uuid.jpg"
+ *                 created_at: "2025-12-21T16:00:00.000Z"
+ *                 book_mark: false
+ *                 signal_noise: "signal"
+ *                 is_deleted: false
+ *                 aiAnalysis:
+ *                   id: 10
+ *                   post_id: 1
+ *                   signal_noise_result: "Signal"
+ *                   aiAnalyzedEmotion:
+ *                     - emotion_name: "Happy"
+ *                       percentage: 85.5
+ *                     - emotion_name: "Joyful"
+ *                       percentage: 12.0
+ *                 emotion:
+ *                   - emotion_name: "Happy"
+ *                     modified: false
+ *                   - emotion_name: "Smile"
+ *                     modified: true
+ *       400:
+ *         description: 유효하지 않은 ID 형식 (P001)
+ *         content:
+ *           application/json:
+ *             example:
+ *               resultType: "FAIL"
+ *               error:
+ *                 errorCode: "P001"
+ *                 reason: "유효하지 않은 게시글 ID 입니다."
+ *                 data:
+ *                   postId: "abc"
+ *               success: null
+ *       404:
+ *         description: 게시글을 찾을 수 없음 (P002)
+ *         content:
+ *           application/json:
+ *             example:
+ *               resultType: "FAIL"
+ *               error:
+ *                 errorCode: "P002"
+ *                 reason: "일치하는 게시글이 없습니다."
+ *                 data:
+ *                   postId: 999
+ *               success: null
+ *       500:
+ *         description: 서버 내부 에러 (P003)
+ *         content:
+ *           application/json:
+ *             examples:
+ *               dbError:
+ *                 summary: DB 관련 에러
+ *                 value:
+ *                   resultType: "FAIL"
+ *                   error:
+ *                     errorCode: "P003"
+ *                     reason: "서버 에러가 발생하였습니다."
+ *                     data:
+ *                       detail: "Database connection timeout"
+ *                   success: null
+ */
 export const handlePost = async (req, res, next) => {
   try {
     const postId = Number(req.params.postId);
