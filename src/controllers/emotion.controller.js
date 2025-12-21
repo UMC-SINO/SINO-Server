@@ -3,42 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { Prisma } from "@prisma/client";
 import { getEmotions } from "../services/emotion.service.js";
 
-/**
- * @swagger
- * /api/v1/emotions:
- *   get:
- *     summary: 감정 목록 조회
- *     tags: [Emotions]
- *     description: 사용자가 선택할 수 있는 감정 목록을 조회합니다.
- *     responses:
- *       200:
- *         description: 조회 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 resultType:
- *                   type: string
- *                   example: "SUCCESS"
- *                 error:
- *                   nullable: true
- *                 success:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 1
- *                       name:
- *                         type: string
- *                         example: "행복"
- *       503:
- *         description: DB 연결 실패
- *       500:
- *         description: 서버 오류
- */
+
 export const handleGetEmotions = async (req, res) => {
   try {
     const emotions = await getEmotions();
